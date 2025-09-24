@@ -10,6 +10,8 @@ struct AddEditHabitView: View {
     @State private var description: String = ""
     @State private var frequency: HabitFrequency = .daily
     @State private var weeklyDayCache: Set<Weekday> = []
+    @State private var reminderEnabled: Bool = false
+    @State private var reminderTime: Date = Date()
 
     var body: some View {
         let frequencyCaseBinding = Binding<HabitFrequency.Case>(
@@ -60,6 +62,14 @@ struct AddEditHabitView: View {
                         DayOfWeekSelector(selectedDays: weeklySelectionBinding)
                     }
                 }
+                
+                Section("Recordatorio") {
+                        Toggle("Activar recordatorio", isOn: $reminderEnabled)
+                        
+                        if reminderEnabled {
+                            DatePicker("Hora", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                        }
+                    }
             }
             .navigationTitle(habit == nil ? "Nuevo Hábito" : "Editar Hábito")
             .toolbar {
@@ -75,6 +85,8 @@ struct AddEditHabitView: View {
             self.name = habit.name
             self.description = habit.habitDescription
             self.frequency = habit.frequency
+            self.reminderEnabled = habit.reminderEnabled
+            self.reminderTime = habit.reminderTime
             
             if case .weekly(let days) = habit.frequency {
                 self.weeklyDayCache = days
@@ -83,14 +95,21 @@ struct AddEditHabitView: View {
     }
     
     private func saveHabit() {
+        let habitToSave: Habit
+        
         if let habit = habit {
             habit.name = name
             habit.habitDescription = description
             habit.frequency = frequency
+            habit.reminderEnabled = reminderEnabled
+            habit.reminderTime = reminderTime
+            habitToSave = habit
         } else {
-            let newHabit = Habit(name: name, description: description, frequency: frequency)
+            let newHabit = Habit(name: name, description: description, frequency: frequency, reminderEnabled: reminderEnabled, reminderTime: reminderTime)
             modelContext.insert(newHabit)
+            habitToSave = newHabit
         }
+        NotificationManager.shared.scheduleNotification(for: habitToSave)
         dismiss()
     }
 }

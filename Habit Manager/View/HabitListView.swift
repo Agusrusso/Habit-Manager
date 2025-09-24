@@ -55,6 +55,7 @@ struct HabitListView: View {
     private func deleteHabit(at offsets: IndexSet) {
         for index in offsets {
             let habit = habits[index]
+            NotificationManager.shared.cancelNotification(for: habit)
             modelContext.delete(habit)
         }
     }
