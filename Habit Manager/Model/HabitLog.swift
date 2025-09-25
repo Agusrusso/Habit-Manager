@@ -4,12 +4,11 @@ import SwiftData
 @Model
 final class HabitLog {
     var date: Date
-    var isCompleted: Bool
-    
+    var progress: Int = 0
     var habit: Habit?
 
-    init(date: Date, isCompleted: Bool = true) {
+    init(date: Date, progress: Int) {
         self.date = date
-        self.isCompleted = isCompleted
+        self.progress = progress
     }
 }

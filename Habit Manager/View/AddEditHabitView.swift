@@ -12,6 +12,9 @@ struct AddEditHabitView: View {
     @State private var weeklyDayCache: Set<Weekday> = []
     @State private var reminderEnabled: Bool = false
     @State private var reminderTime: Date = Date()
+    @State private var habitType: HabitType = .simple
+    @State private var goal: String = "1"
+    @State private var unit: String = ""
 
     var body: some View {
         let frequencyCaseBinding = Binding<HabitFrequency.Case>(
@@ -51,6 +54,20 @@ struct AddEditHabitView: View {
                     TextField("Descripción (opcional)", text: $description)
                 }
                 
+                Section("Tipo de Hábito") {
+                    Picker("Tipo", selection: $habitType) {
+                        Text("Simple").tag(HabitType.simple)
+                        Text("Cuantitativo").tag(HabitType.quantitative)
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    if habitType == .quantitative {
+                        TextField("Meta (ej: 30)", text: $goal)
+                            .keyboardType(.numberPad)
+                        TextField("Unidad (ej: minutos)", text: $unit)
+                    }
+                }
+                
                 Section(header: Text("Frecuencia")) {
                     Picker("Tipo", selection: frequencyCaseBinding) {
                         Text("Diaria").tag(HabitFrequency.Case.daily)
@@ -87,6 +104,9 @@ struct AddEditHabitView: View {
             self.frequency = habit.frequency
             self.reminderEnabled = habit.reminderEnabled
             self.reminderTime = habit.reminderTime
+            self.habitType = habit.type
+            self.goal = String(habit.goal)
+            self.unit = habit.unit
             
             if case .weekly(let days) = habit.frequency {
                 self.weeklyDayCache = days
@@ -96,6 +116,7 @@ struct AddEditHabitView: View {
     
     private func saveHabit() {
         let habitToSave: Habit
+        let goalValue = Int(goal) ?? 1
         
         if let habit = habit {
             habit.name = name
@@ -103,9 +124,12 @@ struct AddEditHabitView: View {
             habit.frequency = frequency
             habit.reminderEnabled = reminderEnabled
             habit.reminderTime = reminderTime
+            habit.type = habitType
+            habit.goal = goalValue
+            habit.unit = unit
             habitToSave = habit
         } else {
-            let newHabit = Habit(name: name, description: description, frequency: frequency, reminderEnabled: reminderEnabled, reminderTime: reminderTime)
+            let newHabit = Habit(name: name, description: description, frequency: frequency, reminderEnabled: reminderEnabled, reminderTime: reminderTime, type: habitType, goal: goalValue, unit: unit)
             modelContext.insert(newHabit)
             habitToSave = newHabit
         }

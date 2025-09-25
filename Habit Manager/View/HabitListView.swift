@@ -60,8 +60,3 @@ struct HabitListView: View {
         }
     }
 }
-
-#Preview {
-    HabitListView()
-        .modelContainer(for: Habit.self, inMemory: true)
-}

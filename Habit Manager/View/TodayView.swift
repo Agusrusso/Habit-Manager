@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct TodayView: View {
-    @Query private var allHabits: [Habit]
+    @Query(sort: \Habit.creationDate, order: .reverse) private var allHabits: [Habit]
     @Environment(\.modelContext) private var modelContext
     
     @State private var todaysHabits: [Habit] = []
@@ -10,25 +10,10 @@ struct TodayView: View {
     var body: some View {
         NavigationStack {
             List(todaysHabits) { habit in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(habit.name)
-                            .font(.headline)
-                        Text(habit.frequency.description)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        toggleCompletion(for: habit)
-                    }) {
-                        Image(systemName: habit.isCompletedToday ? "checkmark.circle.fill" : "circle")
-                            .font(.title2)
-                            .foregroundStyle(habit.isCompletedToday ? .green : .gray)
-                    }
-                    .buttonStyle(.plain)
+                if habit.type == .quantitative {
+                    QuantitativeHabitRow(habit: habit)
+                } else {
+                    SimpleHabitRow(habit: habit)
                 }
             }
             .navigationTitle("Hoy")
@@ -52,18 +37,86 @@ struct TodayView: View {
             }
         }
     }
+}
+
+struct SimpleHabitRow: View {
+    @Bindable var habit: Habit
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        HStack {
+            Text(habit.name)
+                .font(.headline)
+            Spacer()
+            Button(action: {
+                toggleCompletion(for: habit)
+            }) {
+                Image(systemName: habit.isCompletedToday ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundStyle(habit.isCompletedToday ? .green : .gray)
+            }
+            .buttonStyle(.plain)
+        }
+    }
     
     private func toggleCompletion(for habit: Habit) {
         let today = Calendar.current.startOfDay(for: .now)
-        
-        if let log = habit.logs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: today) }) {
-            // Si ya existe un log para hoy, lo eliminamos (desmarcar)
+        if let log = habit.todaysLog {
             modelContext.delete(log)
         } else {
-            // Si no existe, creamos un nuevo log (marcar)
-            let newLog = HabitLog(date: today)
-            newLog.habit = habit
-            modelContext.insert(newLog)
+            let newLog = HabitLog(date: today, progress: 1)
+            habit.logs.append(newLog)
         }
+    }
+}
+
+struct QuantitativeHabitRow: View {
+    @Bindable var habit: Habit
+    @Environment(\.modelContext) private var modelContext
+    
+    var body: some View {
+        let progressBinding = Binding<Int>(
+            get: {
+                habit.todaysProgress
+            },
+            set: { newProgress in
+                let today = Calendar.current.startOfDay(for: .now)
+                if let log = habit.todaysLog {
+                    log.progress = newProgress
+                    if newProgress == 0 {
+                        modelContext.delete(log)
+                    }
+                } else if newProgress > 0 {
+                    let newLog = HabitLog(date: today, progress: newProgress)
+                    habit.logs.append(newLog)
+                }
+            }
+        )
+        
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(habit.name)
+                    .font(.headline)
+                
+                Spacer()
+                
+                if habit.isCompletedToday {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
+            }
+            
+            HStack {
+                Text("\(habit.todaysProgress) / \(habit.goal) \(habit.unit)")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                
+                Spacer()
+                
+                Stepper("Progreso", value: progressBinding, in: 0...999)
+                    .labelsHidden()
+            }
+        }
+        .padding(.vertical, 4)
     }
 }
