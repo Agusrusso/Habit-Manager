@@ -2,7 +2,10 @@
 
 Una app nativa para iOS, simple y poderosa, para construir y seguir tus hábitos. Desarrollada enteramente con las últimas tecnologías de Apple.
 
-*(Puedes añadir aquí una captura de pantalla o un GIF de la app en acción)*
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2026-02-06 at 10 48 19" src="https://github.com/user-attachments/assets/131d1663-6215-4396-93aa-421cb7eb5e62" />
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2026-02-06 at 10 48 27" src="https://github.com/user-attachments/assets/828c8121-2084-4fd1-ab68-890bb421a196" />
+<img width="1206" height="2622" alt="Simulator Screenshot - iPhone 16 Pro - 2026-02-06 at 10 48 35" src="https://github.com/user-attachments/assets/6d818a1e-1aac-448e-af09-f4cdd7650b50" />
+
 
 ***
 
