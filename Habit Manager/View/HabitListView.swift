@@ -29,6 +29,7 @@ struct HabitListView: View {
                                         Text(habit.name.isEmpty ? "Hábito sin nombre" : habit.name)
                                             .font(.headline)
                                             .foregroundStyle(.primary)
+                                            .accessibilityIdentifier("habit_list_title_\(habit.name)")
                                         
                                         Text(habit.frequency.description)
                                             .font(.caption)
@@ -51,6 +52,7 @@ struct HabitListView: View {
                                 }
                             }
                             .buttonStyle(.plain)
+                            .accessibilityIdentifier("habit_row_\(habit.name)")
                         }
                         .onDelete { offsets in
                             Task {
@@ -58,6 +60,7 @@ struct HabitListView: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("habit_list")
                 }
             }
             .navigationTitle("Mis Hábitos")
@@ -68,6 +71,7 @@ struct HabitListView: View {
                     }) {
                         Image(systemName: "plus")
                     }
+                    .accessibilityIdentifier("add_habit_button")
                 }
             }
             .sheet(isPresented: $isShowingAddView) {
@@ -92,6 +96,11 @@ struct HabitListView: View {
             }
             .task {
                 await viewModel.loadHabits()
+            }
+            .onAppear {
+                Task {
+                    await viewModel.loadHabits()
+                }
             }
             .refreshable {
                 await viewModel.loadHabits()

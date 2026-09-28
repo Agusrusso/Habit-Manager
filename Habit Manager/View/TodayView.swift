@@ -36,6 +36,7 @@ struct TodayView: View {
                             )
                         }
                     }
+                    .accessibilityIdentifier("today_habits_list")
                 }
             }
             .navigationTitle("Hoy")
@@ -87,6 +88,11 @@ struct TodayView: View {
             .task {
                 await viewModel.loadHabits()
             }
+            .onAppear {
+                Task {
+                    await viewModel.loadHabits()
+                }
+            }
             .refreshable {
                 await viewModel.loadHabits()
             }
@@ -106,6 +112,7 @@ struct SimpleHabitRow: View {
         HStack {
             Text(habit.name)
                 .font(.headline)
+                .accessibilityIdentifier("today_habit_title_\(habit.name)")
             Spacer()
             Button(action: onToggle) {
                 Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
@@ -113,6 +120,8 @@ struct SimpleHabitRow: View {
                     .foregroundStyle(isCompletedToday ? .green : .gray)
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("habit_completion_toggle_\(habit.name)")
+            .accessibilityValue(isCompletedToday ? "completed" : "incomplete")
         }
     }
 }
@@ -134,6 +143,7 @@ struct QuantitativeHabitRow: View {
             HStack {
                 Text(habit.name)
                     .font(.headline)
+                    .accessibilityIdentifier("today_habit_title_\(habit.name)")
                 
                 Spacer()
                 
@@ -159,6 +169,7 @@ struct QuantitativeHabitRow: View {
                     in: 0...999
                 )
                 .labelsHidden()
+                .accessibilityIdentifier("habit_progress_stepper_\(habit.name)")
             }
         }
         .padding(.vertical, 4)

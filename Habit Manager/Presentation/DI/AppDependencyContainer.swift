@@ -97,7 +97,7 @@ public final class AppDependencyContainer {
 }
 
 private struct DependencyContainerKey: EnvironmentKey {
-    @MainActor static let defaultValue: AppDependencyContainer? = nil
+    static let defaultValue: AppDependencyContainer? = nil
 }
 
 extension EnvironmentValues {

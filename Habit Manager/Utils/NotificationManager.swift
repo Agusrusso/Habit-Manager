@@ -1,6 +1,7 @@
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 
+@MainActor
 class NotificationManager {
     static let shared = NotificationManager()
     
@@ -32,12 +33,13 @@ class NotificationManager {
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         
         let request = UNNotificationRequest(identifier: habit.id.uuidString, content: content, trigger: trigger)
+        let habitName = habit.name
         
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {
                 print("Error al programar la notificación: \(error.localizedDescription)")
             } else {
-                print("Notificación programada para el hábito: \(habit.name)")
+                print("Notificación programada para el hábito: \(habitName)")
             }
         }
     }

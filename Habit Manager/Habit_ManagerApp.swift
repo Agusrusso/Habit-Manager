@@ -8,6 +8,27 @@ struct Habit_ManagerApp: App {
     init() {
         let schema = Schema([Habit.self, HabitLog.self])
         
+        if CommandLine.arguments.contains("-ui-testing") {
+            let memoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            do {
+                let modelContainer = try ModelContainer(for: schema, configurations: [memoryConfig])
+                let repository = SwiftDataHabitRepository(modelContainer: modelContainer)
+                let notificationService = AppNotificationService.shared
+                let suiteName = "UITestingSuite"
+                let userDefaults = UserDefaults(suiteName: suiteName) ?? .standard
+                userDefaults.removePersistentDomain(forName: suiteName)
+                let gamificationRepository = UserDefaultsGamificationRepository(userDefaults: userDefaults)
+                _container = State(initialValue: AppDependencyContainer(
+                    repository: repository,
+                    notificationService: notificationService,
+                    gamificationRepository: gamificationRepository
+                ))
+                return
+            } catch {
+                fatalError("Error crítico al inicializar ModelContainer en memoria para UI testing: \(error.localizedDescription)")
+            }
+        }
+        
         do {
             // Intenta inicializar con sincronización de CloudKit si los entitlements están activos
             let cloudConfig = ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
@@ -54,7 +75,9 @@ struct Habit_ManagerApp: App {
             }
             .environment(\.dependencyContainer, container)
             .task {
-                _ = await container.notificationService.requestAuthorization()
+                if !CommandLine.arguments.contains("-ui-testing") {
+                    _ = await container.notificationService.requestAuthorization()
+                }
             }
         }
     }

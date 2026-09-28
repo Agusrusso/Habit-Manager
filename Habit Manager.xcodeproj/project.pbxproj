@@ -290,6 +290,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Habit Manager/Habit_Manager.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2N576VU5F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Habit Manager/Info.plist";
@@ -319,6 +320,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Habit Manager/Habit_Manager.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2N576VU5F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Habit Manager/Info.plist";

@@ -14,11 +14,14 @@ struct AchievementsView: View {
                 VStack(spacing: 20) {
                     if let profile = viewModel.profile {
                         userLevelCard(profile: profile)
+                            .accessibilityIdentifier("user_level_card")
                     }
                     
                     categoryFilterSection
+                        .accessibilityIdentifier("category_filter_section")
                     
                     badgesGridSection
+                        .accessibilityIdentifier("badges_grid_section")
                 }
                 .padding()
             }
@@ -31,6 +34,11 @@ struct AchievementsView: View {
             }
             .task {
                 await viewModel.loadData()
+            }
+            .onAppear {
+                Task {
+                    await viewModel.loadData()
+                }
             }
             .refreshable {
                 await viewModel.loadData()
@@ -63,10 +71,12 @@ struct AchievementsView: View {
                     Text("NIVEL \(profile.level)")
                         .font(.caption.bold())
                         .foregroundStyle(.orange)
+                        .accessibilityIdentifier("user_level_text")
                     
                     Text(profile.levelTitle)
                         .font(.title2.bold())
                         .foregroundColor(.primary)
+                        .accessibilityIdentifier("user_level_title")
                 }
                 
                 Spacer()
@@ -237,6 +247,7 @@ struct BadgeCard: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("badge_card_\(achievement.id)")
     }
 }
 

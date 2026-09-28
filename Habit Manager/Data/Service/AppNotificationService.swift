@@ -1,5 +1,5 @@
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 
 public final class AppNotificationService: NotificationServiceProtocol {
     public static let shared = AppNotificationService()

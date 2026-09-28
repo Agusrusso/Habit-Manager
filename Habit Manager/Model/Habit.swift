@@ -114,7 +114,7 @@ final class Habit {
     func completionPercentage(forLast days: Int) -> Double {
         let calendar = Calendar.current
         let endDate = Date.now
-        guard let startDate = calendar.date(byAdding: .day, value: -days, to: endDate) else {
+        guard calendar.date(byAdding: .day, value: -days, to: endDate) != nil else {
             return 0.0
         }
         

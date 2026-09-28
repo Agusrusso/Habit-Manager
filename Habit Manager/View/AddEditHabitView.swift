@@ -20,7 +20,9 @@ struct AddEditHabitView: View {
             Form {
                 Section(header: Text("Detalles del Hábito")) {
                     TextField("Nombre (ej: Leer 30 minutos)", text: $viewModel.name)
+                        .accessibilityIdentifier("habit_name_textfield")
                     TextField("Descripción (opcional)", text: $viewModel.habitDescription)
+                        .accessibilityIdentifier("habit_description_textfield")
                 }
                 
                 Section("Tipo de Hábito") {
@@ -72,6 +74,7 @@ struct AddEditHabitView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancelar") { dismiss() }
+                        .accessibilityIdentifier("cancel_habit_button")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Guardar") {
@@ -84,6 +87,7 @@ struct AddEditHabitView: View {
                         }
                     }
                     .disabled(viewModel.isSaveDisabled || viewModel.isLoading)
+                    .accessibilityIdentifier("save_habit_button")
                 }
             }
         }

@@ -130,9 +130,9 @@ El esquema de datos de la aplicación ha sido adaptado y preparado para sincroni
 
 ---
 
-## 🧪 Pruebas Unitarias e Integración (37/37 Pasando)
+## 🧪 Pruebas Unitarias, Integración y UI (41/41 Pasando)
 
-El proyecto cuenta con cobertura exhaustiva de pruebas automáticas en todas las capas:
+El proyecto cuenta con cobertura exhaustiva de pruebas automáticas en todas las capas, validadas con el modo estricto de concurrencia de Swift 6 (`-strict-concurrency=complete`):
 
 | Capa / Suite | Cantidad | Qué valida |
 |---|:---:|---|
@@ -140,12 +140,13 @@ El proyecto cuenta con cobertura exhaustiva de pruebas automáticas en todas las
 | **UseCasesTests** | 8 | Lógica de negocio y casos de uso con mocks de repositorios y notificaciones. |
 | **GamificationDomainTests** | 5 | Progresión de niveles de usuario, evaluación de hitos, rachas, día perfecto y XP. |
 | **SwiftDataHabitRepositoryTests** | 5 | Integración con contenedor SwiftData en memoria (`isStoredInMemoryOnly: true`). |
-| **TodayViewModelTests** | 3 | Filtrado del día, toggles de estado y cambios de progreso cuantitativo. |
+| **TodayViewModelTests** | 4 | Filtrado del día, toggles de estado, progreso numérico y disparo reactivo de XP/logros. |
 | **HabitListViewModelTests** | 2 | Carga de lista y eliminación de hábitos. |
 | **AddEditHabitViewModelTests** | 3 | Reglas de validación, creación y edición de hábitos. |
 | **GamificationViewModelTests** | 2 | Carga de perfil, conteo de insignias y filtrado reactivo por categoría. |
 | **StatsViewModelTests** | 1 | Procesamiento de estadísticas y filtrado de rachas activas para gráficos. |
-| **Smoke Tests** | 1 | Integridad general del bundle de pruebas. |
+| **Habit_ManagerTests** | 1 | Integridad general del bundle de pruebas. |
+| **Habit_ManagerUITests (XCUITest)** | 3 | **Flujo Crítico End-to-End**: creación de hábito desde "Todos", verificación de aparición en "Hoy", completitud interactiva, reflejo en "Logros" y rendimiento de lanzamiento. |
 
 ---
 
@@ -161,7 +162,7 @@ Habit Manager/
 │   └── UseCases/                    # Casos de uso de Hábitos y Gamificación
 ├── Data/                            # Persistencia y Servicios Concretos
 │   ├── Mapping/                     # HabitMapper (SwiftData <-> Dominio)
-│   ├── Repository/                  # SwiftDataHabitRepository, UserDefaultsGamificationRepository
+│   ├── Repository/                  # SwiftDataHabitRepository, UserDefaultsGamificationRepository (actor)
 │   └── Service/                     # AppNotificationService
 ├── Presentation/                    # MVVM y DI
 │   ├── DI/                          # AppDependencyContainer
@@ -172,9 +173,11 @@ Habit Manager/
 │   ├── AchievementsView.swift       # Pantalla de Nivel, Insignias y Detalle
 │   ├── StatsView.swift              # Métricas y Swift Charts
 │   └── DayOfWeekSelector.swift      # Selector de días de la semana
-└── Model/                           # Esquemas SwiftData CloudKit-ready (@Model)
-    ├── Habit.swift
-    └── HabitLog.swift
+├── Model/                           # Esquemas SwiftData CloudKit-ready (@Model)
+│   ├── Habit.swift
+│   └── HabitLog.swift
+└── Habit ManagerUITests/             # Pruebas de Interfaz de Usuario (XCUITest)
+    └── Habit_ManagerUITests.swift   # Flujo crítico end-to-end de creación y completitud
 ```
 
 ---
@@ -183,11 +186,12 @@ Habit Manager/
 
 - [x] **MVP Inicial** (guardado en la rama `mvp`).
 - [x] **Refactorización a Clean Architecture con MVVM**.
-- [x] **Suite de pruebas unitarias e integración (37 tests)**.
+- [x] **Suite de pruebas unitarias e integración (38 tests)**.
 - [x] **Gamificación Completa:** Niveles (1 al 7), sistema de XP, 14 insignias con detalle y alertas reactivas.
-- [x] **Preparación CloudKit:** Modelos compatibles, relaciones inversas y fallback seguro de base de datos.
+- [x] **Preparación CloudKit:** Modelos compatibles, relaciones inversas y contenedor vinculado.
+- [x] **Pruebas de UI (XCUITest):** Automatización de flujos críticos end-to-end.
+- [x] **Cero Warnings con Swift 6 Strict Concurrency** (`-strict-concurrency=complete`).
 - [ ] **Widgets y Live Activities:** Acceso rápido para marcar hábitos desde la pantalla de inicio o bloqueo (iOS 17+).
-- [ ] **UI Tests:** Automatización de flujos end-to-end con XCUITest.
 
 ---
 
