@@ -77,7 +77,8 @@ public final class AppDependencyContainer {
     public func makeAddEditHabitViewModel(habitToEdit: HabitEntity? = nil) -> AddEditHabitViewModel {
         AddEditHabitViewModel(
             habitToEdit: habitToEdit,
-            saveHabitUseCase: saveHabitUseCase
+            saveHabitUseCase: saveHabitUseCase,
+            deleteHabitUseCase: deleteHabitUseCase
         )
     }
     

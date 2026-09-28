@@ -6,6 +6,7 @@ import Observation
 public final class AddEditHabitViewModel {
     private let habitToEdit: HabitEntity?
     private let saveHabitUseCase: SaveHabitUseCaseProtocol
+    private let deleteHabitUseCase: DeleteHabitUseCaseProtocol?
     
     public var name: String
     public var habitDescription: String
@@ -35,10 +36,12 @@ public final class AddEditHabitViewModel {
     
     public init(
         habitToEdit: HabitEntity? = nil,
-        saveHabitUseCase: SaveHabitUseCaseProtocol
+        saveHabitUseCase: SaveHabitUseCaseProtocol,
+        deleteHabitUseCase: DeleteHabitUseCaseProtocol? = nil
     ) {
         self.habitToEdit = habitToEdit
         self.saveHabitUseCase = saveHabitUseCase
+        self.deleteHabitUseCase = deleteHabitUseCase
         
         if let habit = habitToEdit {
             self.name = habit.name
@@ -98,6 +101,23 @@ public final class AddEditHabitViewModel {
         
         do {
             try await saveHabitUseCase.execute(habit)
+            isLoading = false
+            return true
+        } catch {
+            errorMessage = error.localizedDescription
+            isLoading = false
+            return false
+        }
+    }
+    
+    public func delete() async -> Bool {
+        guard let habitToEdit, let deleteHabitUseCase else { return false }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            try await deleteHabitUseCase.execute(habitId: habitToEdit.id)
             isLoading = false
             return true
         } catch {

@@ -25,8 +25,8 @@ public final class AppNotificationService: NotificationServiceProtocol {
         guard habit.reminderEnabled else { return }
         
         let content = UNMutableNotificationContent()
-        content.title = "¡Es hora de tu hábito!"
-        content.body = habit.name
+        content.title = "Recordatorio: \(habit.name)"
+        content.body = habit.habitDescription.isEmpty ? "No olvides tu hábito de hoy." : habit.habitDescription
         content.sound = .default
         
         let calendar = Calendar.current

@@ -72,4 +72,26 @@ struct AddEditHabitViewModelTests {
         let fetched = try! await repository.getHabit(byId: habit.id)
         #expect(fetched?.name == "Modificado")
     }
+    
+    @Test("AddEditHabitViewModel deletes existing habit")
+    @MainActor
+    func deleteExistingHabit() async {
+        let habit = HabitEntity(name: "Para Eliminar", frequency: .daily)
+        let repository = MockHabitRepository(initialHabits: [habit])
+        let notificationService = MockNotificationService()
+        let saveUseCase = SaveHabitUseCase(repository: repository, notificationService: notificationService)
+        let deleteUseCase = DeleteHabitUseCase(repository: repository, notificationService: notificationService)
+        
+        let vm = AddEditHabitViewModel(
+            habitToEdit: habit,
+            saveHabitUseCase: saveUseCase,
+            deleteHabitUseCase: deleteUseCase
+        )
+        
+        let success = await vm.delete()
+        #expect(success == true)
+        
+        let savedHabits = try! await repository.getHabits()
+        #expect(savedHabits.isEmpty)
+    }
 }

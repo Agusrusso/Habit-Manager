@@ -3,6 +3,7 @@ import SwiftUI
 struct AddEditHabitView: View {
     @State var viewModel: AddEditHabitViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var showDeleteConfirmation = false
     var onSaved: (() -> Void)? = nil
     
     var body: some View {
@@ -63,6 +64,16 @@ struct AddEditHabitView: View {
                     }
                 }
                 
+                if viewModel.isEditing {
+                    Section {
+                        Button("Eliminar Hábito", role: .destructive) {
+                            showDeleteConfirmation = true
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .accessibilityIdentifier("delete_habit_button")
+                    }
+                }
+                
                 if let error = viewModel.errorMessage {
                     Section {
                         Text(error)
@@ -71,6 +82,24 @@ struct AddEditHabitView: View {
                 }
             }
             .navigationTitle(viewModel.title)
+            .confirmationDialog(
+                "¿Eliminar hábito?",
+                isPresented: $showDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Eliminar", role: .destructive) {
+                    Task {
+                        let success = await viewModel.delete()
+                        if success {
+                            onSaved?()
+                            dismiss()
+                        }
+                    }
+                }
+                Button("Cancelar", role: .cancel) { }
+            } message: {
+                Text("Esta acción eliminará el hábito y todo su historial de forma permanente.")
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancelar") { dismiss() }
