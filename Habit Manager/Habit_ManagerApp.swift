@@ -6,11 +6,22 @@ struct Habit_ManagerApp: App {
     @State private var container: AppDependencyContainer
     
     init() {
+        let schema = Schema([Habit.self, HabitLog.self])
+        
         do {
-            let modelContainer = try ModelContainer(for: Habit.self, HabitLog.self)
+            // Intenta inicializar con sincronización de CloudKit si los entitlements están activos
+            let cloudConfig = ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
+            let modelContainer = try ModelContainer(for: schema, configurations: [cloudConfig])
             _container = State(initialValue: AppDependencyContainer(modelContainer: modelContainer))
         } catch {
-            fatalError("Failed to initialize ModelContainer: \(error.localizedDescription)")
+            // Fallback seguro a almacenamiento local cuando no hay credenciales/entitlements de CloudKit
+            do {
+                let localConfig = ModelConfiguration(schema: schema, cloudKitDatabase: .none)
+                let modelContainer = try ModelContainer(for: schema, configurations: [localConfig])
+                _container = State(initialValue: AppDependencyContainer(modelContainer: modelContainer))
+            } catch {
+                fatalError("Error crítico al inicializar ModelContainer local: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -29,7 +40,13 @@ struct Habit_ManagerApp: App {
                         Label("Todos", systemImage: "list.bullet")
                     }
                 
-                // Pestaña 3: Estadísticas
+                // Pestaña 3: Logros y Gamificación
+                AchievementsView(viewModel: container.makeGamificationViewModel())
+                    .tabItem {
+                        Label("Logros", systemImage: "trophy.fill")
+                    }
+                
+                // Pestaña 4: Estadísticas
                 StatsView(viewModel: container.makeStatsViewModel())
                     .tabItem {
                         Label("Estadísticas", systemImage: "chart.bar.fill")

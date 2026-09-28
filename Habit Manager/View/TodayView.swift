@@ -39,6 +39,51 @@ struct TodayView: View {
                 }
             }
             .navigationTitle("Hoy")
+            .overlay(alignment: .top) {
+                if viewModel.showAchievementToast, let achievement = viewModel.latestUnlockedAchievement {
+                    HStack(spacing: 12) {
+                        Image(systemName: achievement.iconName)
+                            .font(.title2)
+                            .foregroundColor(.orange)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("¡Nuevo Logro Desbloqueado!")
+                                .font(.caption.bold())
+                                .foregroundStyle(.orange)
+                            Text("\(achievement.title) (+\(achievement.xpReward) XP)")
+                                .font(.subheadline.bold())
+                                .foregroundColor(.primary)
+                        }
+                        
+                        Spacer()
+                        
+                        Button {
+                            withAnimation {
+                                viewModel.dismissAchievementToast()
+                            }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 14)
+                            .fill(Color(uiColor: .secondarySystemGroupedBackground))
+                            .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+                    )
+                    .padding(.horizontal)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                            withAnimation {
+                                viewModel.dismissAchievementToast()
+                            }
+                        }
+                    }
+                }
+            }
+            .animation(.spring(), value: viewModel.showAchievementToast)
             .task {
                 await viewModel.loadHabits()
             }

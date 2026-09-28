@@ -2,29 +2,32 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-// Enums (Weekday, HabitFrequency, FrequencyType, HabitType) are now defined in Domain/Model/
-
 // ===================================
-// MARK: - Modelo Principal
+// MARK: - Modelo Principal (CloudKit Compatible)
 // ===================================
 
 @Model
 final class Habit {
-    @Attribute(.unique) var id: UUID
+    var id: UUID = UUID()
     
-    var name: String
-    var habitDescription: String
-    var creationDate: Date
+    var name: String = ""
+    var habitDescription: String = ""
+    var creationDate: Date = Date()
     var reminderEnabled: Bool = false
     var reminderTime: Date = Date()
     var type: HabitType = HabitType.simple
     var goal: Int = 1 // Meta para hábitos cuantitativos
     var unit: String = "" // ej: "vasos", "minutos", "pasos"
     
-    @Relationship(deleteRule: .cascade) var logs: [HabitLog] = []
+    @Relationship(deleteRule: .cascade, inverse: \HabitLog.habit)
+    var logs: [HabitLog]? = []
     
     private var frequencyType: FrequencyType = FrequencyType.daily
     private var frequencyDays: [Int] = []
+
+    var safeLogs: [HabitLog] {
+        logs ?? []
+    }
 
     @Transient
     var frequency: HabitFrequency {
@@ -55,7 +58,7 @@ final class Habit {
         let currentDate = Date.now
         let calendar = Calendar.current
         
-        for i in 0..<logs.count + 1 { // límite de seguridad para no entrar en un bucle infinito
+        for i in 0..<safeLogs.count + 1 {
             let dateToCheck = calendar.date(byAdding: .day, value: -i, to: currentDate)!
             
             if isCompleted(on: dateToCheck) {
@@ -70,21 +73,33 @@ final class Habit {
         return streak
     }
     
-    init(id: UUID = UUID(), name: String, description: String, frequency: HabitFrequency, creationDate: Date = .now, reminderEnabled: Bool = false, reminderTime: Date = Date(), type: HabitType = .simple, goal: Int = 1, unit: String = "") {
+    init(
+        id: UUID = UUID(),
+        name: String = "",
+        description: String = "",
+        frequency: HabitFrequency = .daily,
+        creationDate: Date = .now,
+        reminderEnabled: Bool = false,
+        reminderTime: Date = Date(),
+        type: HabitType = .simple,
+        goal: Int = 1,
+        unit: String = ""
+    ) {
         self.id = id
         self.name = name
         self.habitDescription = description
-        self.creationDate = creationDate
         self.frequency = frequency
+        self.creationDate = creationDate
         self.reminderEnabled = reminderEnabled
         self.reminderTime = reminderTime
         self.type = type
         self.goal = goal
         self.unit = unit
+        self.logs = []
     }
     
     func isCompleted(on date: Date) -> Bool {
-        guard let logOnDate = logs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) else {
+        guard let logOnDate = safeLogs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) else {
             return false
         }
         
@@ -98,7 +113,6 @@ final class Habit {
     
     func completionPercentage(forLast days: Int) -> Double {
         let calendar = Calendar.current
-        // 1. Definimos el rango de fechas a revisar.
         let endDate = Date.now
         guard let startDate = calendar.date(byAdding: .day, value: -days, to: endDate) else {
             return 0.0
@@ -107,16 +121,12 @@ final class Habit {
         var scheduledCount = 0
         var completedCount = 0
         
-        // 2. Iteramos día por día dentro del rango.
         for i in 0...days {
             guard let dateToCheck = calendar.date(byAdding: .day, value: -i, to: endDate) else { continue }
-            
-            // No contamos días futuros si el rango es grande (poco probable, pero seguro).
             if dateToCheck > endDate { continue }
             
             var wasScheduled = false
             
-            // 3. Verificamos si el hábito estaba programado para ese día.
             switch self.frequency {
             case .daily:
                 wasScheduled = true
@@ -129,14 +139,12 @@ final class Habit {
             
             if wasScheduled {
                 scheduledCount += 1
-                // 4. Si estaba programado, verificamos si se completó.
                 if isCompleted(on: dateToCheck) {
                     completedCount += 1
                 }
             }
         }
         
-        // 5. Calculamos el porcentaje, evitando la división por cero.
         if scheduledCount == 0 {
             return 0.0
         }
@@ -145,12 +153,10 @@ final class Habit {
     }
 }
 
-
-
 extension Habit {
     var todaysLog: HabitLog? {
         let today = Calendar.current.startOfDay(for: .now)
-        return logs.first { log in
+        return safeLogs.first { log in
             Calendar.current.isDate(log.date, inSameDayAs: today)
         }
     }

@@ -54,10 +54,14 @@ public final class SwiftDataHabitRepository: HabitRepositoryProtocol {
         let calendar = Calendar.current
         let targetDate = calendar.startOfDay(for: date)
         
-        if let existingLog = habit.logs.first(where: { calendar.isDate($0.date, inSameDayAs: targetDate) }) {
+        if habit.logs == nil {
+            habit.logs = []
+        }
+        
+        if let existingLog = habit.logs?.first(where: { calendar.isDate($0.date, inSameDayAs: targetDate) }) {
             if progress <= 0 {
-                if let index = habit.logs.firstIndex(where: { $0 === existingLog }) {
-                    habit.logs.remove(at: index)
+                if let index = habit.logs?.firstIndex(where: { $0 === existingLog }) {
+                    habit.logs?.remove(at: index)
                 }
                 modelContext.delete(existingLog)
             } else {
@@ -65,7 +69,8 @@ public final class SwiftDataHabitRepository: HabitRepositoryProtocol {
             }
         } else if progress > 0 {
             let newLog = HabitLog(date: targetDate, progress: progress)
-            habit.logs.append(newLog)
+            newLog.habit = habit
+            habit.logs?.append(newLog)
         }
         
         try modelContext.save()

@@ -14,7 +14,7 @@ extension Habit {
             type: self.type,
             goal: self.goal,
             unit: self.unit,
-            logs: self.logs.map { $0.toEntity() }
+            logs: (self.logs ?? []).map { $0.toEntity() }
         )
     }
     
