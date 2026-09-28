@@ -2,58 +2,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-// ===================================
-// MARK: - Enums de Frecuencia
-// ===================================
-
-enum Weekday: Int, Codable, CaseIterable, Comparable {
-    case sunday = 1, monday, tuesday, wednesday, thursday, friday, saturday
-    
-    static func < (lhs: Weekday, rhs: Weekday) -> Bool {
-        lhs.rawValue < rhs.rawValue
-    }
-    
-    /// La inicial para mostrar en la UI.
-    var initial: String {
-        switch self {
-        case .sunday: return "D"
-        case .monday: return "L"
-        case .tuesday: return "M"
-        case .wednesday: return "X"
-        case .thursday: return "J"
-        case .friday: return "V"
-        case .saturday: return "S"
-        }
-    }
-}
-
-/// Enum lógico para usar en la app que no se guarda directamente.
-enum HabitFrequency: Codable {
-    case daily
-    case weekly(Set<Weekday>)
-    
-    var description: String {
-        switch self {
-        case .daily:
-            return "Diario"
-        case .weekly(let days):
-            if days.count == 7 { return "Diario" }
-            if days.isEmpty { return "Ningún día" }
-            return days.sorted().map { $0.initial }.joined(separator: ", ")
-        }
-    }
-}
-
-/// Enum simple que si se guarda en la base de datos.
-enum FrequencyType: String, Codable {
-    case daily
-    case weekly
-}
-
-enum HabitType: String, Codable {
-    case simple
-    case quantitative
-}
+// Enums (Weekday, HabitFrequency, FrequencyType, HabitType) are now defined in Domain/Model/
 
 // ===================================
 // MARK: - Modelo Principal
@@ -197,22 +146,6 @@ final class Habit {
 }
 
 
-// ===================================
-// MARK: - Convenience Extension
-// ===================================
-
-extension HabitFrequency {
-    enum Case: Hashable {
-        case daily, weekly
-    }
-
-    var `case`: Case {
-        switch self {
-        case .daily: return .daily
-        case .weekly: return .weekly
-        }
-    }
-}
 
 extension Habit {
     var todaysLog: HabitLog? {

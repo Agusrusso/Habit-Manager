@@ -1,22 +1,25 @@
 import SwiftUI
-import SwiftData
 import Charts
 
 struct StatsView: View {
-    @Query(sort: \Habit.creationDate) private var habits: [Habit]
+    @State var viewModel: StatsViewModel
     @State private var selectedPeriod: StatsPeriod = .week
-    
-    private var habitsWithStreaks: [Habit] {
-        habits.filter { $0.currentStreak > 0 }
-    }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 28) {
-                    if habits.isEmpty {
-                        ContentUnavailableView("Sin Hábitos", systemImage: "chart.bar.xaxis", description: Text("Aún no has creado ningún hábito para ver tus estadísticas."))
+                    if viewModel.isLoading && !viewModel.hasHabits {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .padding(.top, 50)
+                    } else if !viewModel.hasHabits {
+                        ContentUnavailableView(
+                            "Sin Hábitos",
+                            systemImage: "chart.bar.xaxis",
+                            description: Text("Aún no has creado ningún hábito para ver tus estadísticas.")
+                        )
+                        .padding(.top, 50)
                     } else {
                         VStack(alignment: .leading, spacing: 16) {
                             VStack(alignment: .leading) {
@@ -33,11 +36,11 @@ struct StatsView: View {
                             .padding(.horizontal)
                             
                             VStack(alignment: .leading, spacing: 15) {
-                                ForEach(habits) { habit in
+                                ForEach(viewModel.stats) { stat in
                                     VStack(alignment: .leading) {
-                                        let percentage = habit.completionPercentage(forLast: selectedPeriod.dayCount)
+                                        let percentage = selectedPeriod == .week ? stat.weeklyCompletionPercentage : stat.monthlyCompletionPercentage
                                         
-                                        Text(habit.name + "   " + "\(Int(percentage))%")
+                                        Text("\(stat.habitName)   \(Int(percentage))%")
                                             .font(.headline)
                                             .foregroundStyle(.secondary)
                                         
@@ -53,63 +56,58 @@ struct StatsView: View {
                             .padding(.horizontal)
                         }
 
-                    }
-                    
-                    if !habitsWithStreaks.isEmpty {
-                        VStack(alignment: .leading) {
-                            Text("Tus Rachas Actuales")
-                                .font(.title2.bold())
-                                .padding([.horizontal, .top])
-                            
-                            Chart(habitsWithStreaks) { habit in
-                                BarMark(
-                                    x: .value("Racha", habit.currentStreak),
-                                    y: .value("Hábito", habit.name)
-                                )
-                                .foregroundStyle(by: .value("Hábito", habit.name))
-                                .annotation(position: .trailing) {
-                                    Text("\(habit.currentStreak)")
-                                        .font(.subheadline.bold())
-                                        .foregroundStyle(.secondary)
+                        if viewModel.hasStreaks {
+                            VStack(alignment: .leading) {
+                                Text("Tus Rachas Actuales")
+                                    .font(.title2.bold())
+                                    .padding([.horizontal, .top])
+                                
+                                Chart(viewModel.streaksForChart) { stat in
+                                    BarMark(
+                                        x: .value("Racha", stat.streak),
+                                        y: .value("Hábito", stat.habitName)
+                                    )
+                                    .foregroundStyle(by: .value("Hábito", stat.habitName))
+                                    .annotation(position: .trailing) {
+                                        Text("\(stat.streak)")
+                                            .font(.subheadline.bold())
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
-                            }
-                            .chartLegend(.hidden)
-                            .chartXAxis(.hidden)
-                            .chartYAxis {
-                                AxisMarks { _ in
-                                    AxisValueLabel()
-                                        .font(.headline)
+                                .chartLegend(.hidden)
+                                .chartXAxis(.hidden)
+                                .chartYAxis {
+                                    AxisMarks { _ in
+                                        AxisValueLabel()
+                                            .font(.headline)
+                                    }
                                 }
+                                .frame(minHeight: CGFloat(viewModel.streaksForChart.count) * 50)
+                                .padding()
+                                .background(in: RoundedRectangle(cornerRadius: 10))
+                                .foregroundStyle(.secondary)
+                                .padding(.horizontal, 20)
                             }
-                            .frame(minHeight: CGFloat(habits.count) * 50)
-                            .padding()
-                            .background(in: RoundedRectangle(cornerRadius: 10))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 20)
+                            Spacer()
                         }
-                        Spacer()
                     }
                 }
             }
             .navigationTitle("Estadísticas")
             .background(Color(uiColor: .systemGroupedBackground))
+            .task {
+                await viewModel.loadStats()
+            }
+            .refreshable {
+                await viewModel.loadStats()
+            }
         }
     }
 }
-
 
 enum StatsPeriod: String, CaseIterable, Identifiable {
     case week = "Últimos 7 días"
     case month = "Últimos 30 días"
     
     var id: String { self.rawValue }
-    
-    var dayCount: Int {
-        switch self {
-        case .week:
-            return 7
-        case .month:
-            return 30
-        }
-    }
 }

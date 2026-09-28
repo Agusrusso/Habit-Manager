@@ -1,98 +1,90 @@
 import SwiftUI
-import SwiftData
 
 struct TodayView: View {
-    @Query(sort: \Habit.creationDate, order: .reverse) private var allHabits: [Habit]
-    @Environment(\.modelContext) private var modelContext
-    
-    @State private var todaysHabits: [Habit] = []
+    @State var viewModel: TodayViewModel
     
     var body: some View {
         NavigationStack {
-            List(todaysHabits) { habit in
-                if habit.type == .quantitative {
-                    QuantitativeHabitRow(habit: habit)
+            Group {
+                if viewModel.isLoading && viewModel.habits.isEmpty {
+                    ProgressView()
+                } else if viewModel.habits.isEmpty {
+                    ContentUnavailableView(
+                        "No hay hábitos para hoy",
+                        systemImage: "sun.max",
+                        description: Text("¡Disfruta de tu día libre o añade nuevos hábitos!")
+                    )
                 } else {
-                    SimpleHabitRow(habit: habit)
+                    List(viewModel.habits) { habit in
+                        if habit.type == .quantitative {
+                            QuantitativeHabitRow(
+                                habit: habit,
+                                onProgressChange: { newProgress in
+                                    Task {
+                                        await viewModel.setProgress(for: habit, progress: newProgress)
+                                    }
+                                }
+                            )
+                        } else {
+                            SimpleHabitRow(
+                                habit: habit,
+                                onToggle: {
+                                    Task {
+                                        await viewModel.toggleCompletion(for: habit)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             }
             .navigationTitle("Hoy")
-            .onAppear(perform: filterTodaysHabits)
-            .onChange(of: allHabits, initial: true) { _, _ in
-                filterTodaysHabits()
+            .task {
+                await viewModel.loadHabits()
             }
-        }
-    }
-    
-    private func filterTodaysHabits() {
-        let calendar = Calendar.current
-        let todayWeekday = calendar.component(.weekday, from: .now)
-        
-        todaysHabits = allHabits.filter { habit in
-            switch habit.frequency {
-            case .daily:
-                return true
-            case .weekly(let weekdays):
-                return weekdays.contains { $0.rawValue == todayWeekday }
+            .refreshable {
+                await viewModel.loadHabits()
             }
         }
     }
 }
 
 struct SimpleHabitRow: View {
-    @Bindable var habit: Habit
-    @Environment(\.modelContext) private var modelContext
+    let habit: HabitEntity
+    let onToggle: () -> Void
+    
+    private var isCompletedToday: Bool {
+        habit.isCompleted(on: .now)
+    }
     
     var body: some View {
         HStack {
             Text(habit.name)
                 .font(.headline)
             Spacer()
-            Button(action: {
-                toggleCompletion(for: habit)
-            }) {
-                Image(systemName: habit.isCompletedToday ? "checkmark.circle.fill" : "circle")
+            Button(action: onToggle) {
+                Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundStyle(habit.isCompletedToday ? .green : .gray)
+                    .foregroundStyle(isCompletedToday ? .green : .gray)
             }
             .buttonStyle(.plain)
-        }
-    }
-    
-    private func toggleCompletion(for habit: Habit) {
-        let today = Calendar.current.startOfDay(for: .now)
-        if let log = habit.todaysLog {
-            modelContext.delete(log)
-        } else {
-            let newLog = HabitLog(date: today, progress: 1)
-            habit.logs.append(newLog)
         }
     }
 }
 
 struct QuantitativeHabitRow: View {
-    @Bindable var habit: Habit
-    @Environment(\.modelContext) private var modelContext
+    let habit: HabitEntity
+    let onProgressChange: (Int) -> Void
+    
+    private var isCompletedToday: Bool {
+        habit.isCompleted(on: .now)
+    }
+    
+    private var todaysProgress: Int {
+        habit.progress(on: .now)
+    }
     
     var body: some View {
-        let progressBinding = Binding<Int>(
-            get: {
-                habit.todaysProgress
-            },
-            set: { newProgress in
-                let today = Calendar.current.startOfDay(for: .now)
-                if let log = habit.todaysLog {
-                    log.progress = newProgress
-                    if newProgress == 0 {
-                        modelContext.delete(log)
-                    }
-                } else if newProgress > 0 {
-                    let newLog = HabitLog(date: today, progress: newProgress)
-                    habit.logs.append(newLog)
-                }
-            }
-        )
-        
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(habit.name)
@@ -100,21 +92,28 @@ struct QuantitativeHabitRow: View {
                 
                 Spacer()
                 
-                if habit.isCompletedToday {
+                if isCompletedToday {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                 }
             }
             
             HStack {
-                Text("\(habit.todaysProgress) / \(habit.goal) \(habit.unit)")
+                Text("\(todaysProgress) / \(habit.goal) \(habit.unit)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 
                 Spacer()
                 
-                Stepper("Progreso", value: progressBinding, in: 0...999)
-                    .labelsHidden()
+                Stepper(
+                    "Progreso",
+                    value: Binding<Int>(
+                        get: { todaysProgress },
+                        set: { onProgressChange($0) }
+                    ),
+                    in: 0...999
+                )
+                .labelsHidden()
             }
         }
         .padding(.vertical, 4)
