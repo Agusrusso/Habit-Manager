@@ -119,18 +119,39 @@ El esquema de datos de la aplicación ha sido adaptado y preparado para sincroni
 
 ---
 
+---
+
+## 📱 Widgets Interactivos (WidgetKit + AppIntents)
+
+La aplicación incluye soporte completo para **Widgets Interactivos en iOS 17+**, permitiendo visualizar el progreso del día y marcar hábitos directamente desde la pantalla de inicio o la pantalla de bloqueo sin necesidad de abrir la app:
+
+* **Sincronización mediante App Groups:**
+  * Almacenamiento compartido y thread-safe con `group.com.agusrusso.HabitManager` a través de `SharedHabitStore`.
+  * La app principal sincroniza automáticamente los hábitos del día y rachas en cada apertura o cambio en `TodayViewModel`.
+* **Interactividad con `AppIntent` (`ToggleHabitIntent`):**
+  * Al presionar el botón de checkmark en el widget mediano, se dispara `ToggleHabitIntent`, actualizando el estado atómicamente y recargando el timeline con `WidgetCenter.shared.reloadAllTimelines()`.
+* **Familias de Widgets Soportadas:**
+  * **`.systemSmall`:** Anillo circular animado con porcentaje de cumplimiento del día, racha más alta 🔥 y contador de pendientes.
+  * **`.systemMedium`:** Lista interactiva de los hábitos de hoy con botones directos para completarlos, tachado de texto y progreso para cuantitativos.
+  * **Lock Screen (`.accessoryCircular`, `.accessoryRectangular`, `.accessoryInline`):** Información visible en pantalla de bloqueo y StandBy.
+* **Target `HabitWidgetExtension`:**
+  * Compilado como un App Extension nativo (`.appex`) e incrustado en el bundle de la aplicación.
+
+---
+
 ## 🛠️ Tecnologías Utilizadas
 
 - **Lenguaje:** Swift 6 / iOS 17+ (Swift Concurrency: `async`/`await`, `Sendable`, `@MainActor`).
 - **Framework de Interfaz:** SwiftUI con macros `@Observable`.
 - **Persistencia:** SwiftData (aislado en capa de datos) + compatibilidad CloudKit.
+- **Widgets:** WidgetKit + AppIntents (interactividad directa).
 - **Gráficos:** Swift Charts.
 - **Notificaciones:** UserNotifications (`UNUserNotificationCenter`).
 - **Framework de Pruebas:** Swift Testing (`@Suite`, `@Test`, `#expect`) + XCTest.
 
 ---
 
-## 🧪 Pruebas Unitarias, Integración y UI (41/41 Pasando)
+## 🧪 Pruebas Unitarias, Integración y UI (45/45 Pasando)
 
 El proyecto cuenta con cobertura exhaustiva de pruebas automáticas en todas las capas, validadas con el modo estricto de concurrencia de Swift 6 (`-strict-concurrency=complete`):
 
@@ -140,9 +161,10 @@ El proyecto cuenta con cobertura exhaustiva de pruebas automáticas en todas las
 | **UseCasesTests** | 8 | Lógica de negocio y casos de uso con mocks de repositorios y notificaciones. |
 | **GamificationDomainTests** | 5 | Progresión de niveles de usuario, evaluación de hitos, rachas, día perfecto y XP. |
 | **SwiftDataHabitRepositoryTests** | 5 | Integración con contenedor SwiftData en memoria (`isStoredInMemoryOnly: true`). |
-| **TodayViewModelTests** | 4 | Filtrado del día, toggles de estado, progreso numérico y disparo reactivo de XP/logros. |
+| **TodayViewModelTests** | 4 | Filtrado del día, toggles de estado, progreso numérico y sincronización de widgets. |
+| **SharedHabitStoreTests** | 3 | Codificación, serialización atómica en App Group y alternancia interactiva de hábitos en widgets. |
 | **HabitListViewModelTests** | 2 | Carga de lista y eliminación de hábitos. |
-| **AddEditHabitViewModelTests** | 3 | Reglas de validación, creación y edición de hábitos. |
+| **AddEditHabitViewModelTests** | 4 | Reglas de validación, creación, edición y eliminación de hábitos. |
 | **GamificationViewModelTests** | 2 | Carga de perfil, conteo de insignias y filtrado reactivo por categoría. |
 | **StatsViewModelTests** | 1 | Procesamiento de estadísticas y filtrado de rachas activas para gráficos. |
 | **Habit_ManagerTests** | 1 | Integridad general del bundle de pruebas. |
@@ -176,6 +198,13 @@ Habit Manager/
 ├── Model/                           # Esquemas SwiftData CloudKit-ready (@Model)
 │   ├── Habit.swift
 │   └── HabitLog.swift
+├── HabitWidgetExtension/            # Target de Extensión para Widgets de iOS
+│   ├── HabitWidgetBundle.swift      # Entry point @main del widget
+│   ├── HabitWidget.swift            # TimelineProvider y configuración del Widget
+│   ├── HabitWidgetViews.swift       # Vistas SwiftUI (small, medium, accessory)
+│   ├── ToggleHabitIntent.swift      # AppIntent para interacción directa
+│   ├── SharedHabitStore.swift       # Acceso thread-safe vía App Groups
+│   └── HabitWidgetSnapshot.swift    # Snapshot serializable de hábitos del día
 └── Habit ManagerUITests/             # Pruebas de Interfaz de Usuario (XCUITest)
     └── Habit_ManagerUITests.swift   # Flujo crítico end-to-end de creación y completitud
 ```
@@ -186,12 +215,13 @@ Habit Manager/
 
 - [x] **MVP Inicial** (guardado en la rama `mvp`).
 - [x] **Refactorización a Clean Architecture con MVVM**.
-- [x] **Suite de pruebas unitarias e integración (38 tests)**.
+- [x] **Suite de pruebas unitarias e integración (42 tests)**.
 - [x] **Gamificación Completa:** Niveles (1 al 7), sistema de XP, 14 insignias con detalle y alertas reactivas.
 - [x] **Preparación CloudKit:** Modelos compatibles, relaciones inversas y contenedor vinculado.
 - [x] **Pruebas de UI (XCUITest):** Automatización de flujos críticos end-to-end.
 - [x] **Cero Warnings con Swift 6 Strict Concurrency** (`-strict-concurrency=complete`).
-- [ ] **Widgets y Live Activities:** Acceso rápido para marcar hábitos desde la pantalla de inicio o bloqueo (iOS 17+).
+- [x] **Widgets Interactivos (Opción A):** Widgets en pantalla de inicio y bloqueo con AppIntents para completar hábitos sin abrir la app.
+- [ ] **Live Activities y Dynamic Island (Opción B):** Temporizador de sesión de enfoque o progreso en vivo en Dynamic Island y Lock Screen.
 
 ---
 
@@ -199,3 +229,4 @@ Habit Manager/
 
 **Agustín Russo**
 - GitHub: [@Agusrusso](https://github.com/Agusrusso)
+

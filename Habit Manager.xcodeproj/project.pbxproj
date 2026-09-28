@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6AD5C5EA2E82ECEE00BEF107 /* HabitWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 6AD5C5E02E82ECEE00BEF107 /* HabitWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		6AD5C5EC2E82ECEE00BEF107 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6AD5C5A72E82ECEB00BEF107 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6AD5C5E22E82ECEE00BEF107;
+			remoteInfo = HabitWidgetExtension;
+		};
 		6AD5C5C12E82ECEE00BEF107 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6AD5C5A72E82ECEB00BEF107 /* Project object */;
@@ -23,13 +34,35 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		6AD5C5EB2E82ECEE00BEF107 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				6AD5C5EA2E82ECEE00BEF107 /* HabitWidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		6AD5C5E02E82ECEE00BEF107 /* HabitWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = HabitWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AD5C5AF2E82ECEC00BEF107 /* Habit Manager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Habit Manager.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AD5C5C02E82ECEE00BEF107 /* Habit ManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Habit ManagerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AD5C5CA2E82ECEE00BEF107 /* Habit ManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Habit ManagerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6AD5C5E12E82ECEE00BEF107 /* Exceptions for "HabitWidgetExtension" folder in "HabitWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6AD5C5E22E82ECEE00BEF107 /* HabitWidgetExtension */;
+		};
 		6AD5C5D22E82ECEE00BEF107 /* Exceptions for "Habit Manager" folder in "Habit Manager" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -40,6 +73,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		6AD5C5E32E82ECEE00BEF107 /* HabitWidgetExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6AD5C5E12E82ECEE00BEF107 /* Exceptions for "HabitWidgetExtension" folder in "HabitWidgetExtension" target */,
+			);
+			path = HabitWidgetExtension;
+			sourceTree = "<group>";
+		};
 		6AD5C5B12E82ECEC00BEF107 /* Habit Manager */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -61,6 +102,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		6AD5C5E42E82ECEE00BEF107 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6AD5C5AC2E82ECEC00BEF107 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -91,6 +139,7 @@
 				6AD5C5B12E82ECEC00BEF107 /* Habit Manager */,
 				6AD5C5C32E82ECEE00BEF107 /* Habit ManagerTests */,
 				6AD5C5CD2E82ECEE00BEF107 /* Habit ManagerUITests */,
+				6AD5C5E32E82ECEE00BEF107 /* HabitWidgetExtension */,
 				6AD5C5B02E82ECEC00BEF107 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -101,6 +150,7 @@
 				6AD5C5AF2E82ECEC00BEF107 /* Habit Manager.app */,
 				6AD5C5C02E82ECEE00BEF107 /* Habit ManagerTests.xctest */,
 				6AD5C5CA2E82ECEE00BEF107 /* Habit ManagerUITests.xctest */,
+				6AD5C5E02E82ECEE00BEF107 /* HabitWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,6 +158,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		6AD5C5E22E82ECEE00BEF107 /* HabitWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6AD5C5E52E82ECEE00BEF107 /* Build configuration list for PBXNativeTarget "HabitWidgetExtension" */;
+			buildPhases = (
+				6AD5C5E62E82ECEE00BEF107 /* Sources */,
+				6AD5C5E42E82ECEE00BEF107 /* Frameworks */,
+				6AD5C5E72E82ECEE00BEF107 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				6AD5C5E32E82ECEE00BEF107 /* HabitWidgetExtension */,
+			);
+			name = HabitWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = HabitWidgetExtension;
+			productReference = 6AD5C5E02E82ECEE00BEF107 /* HabitWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		6AD5C5AE2E82ECEC00BEF107 /* Habit Manager */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6AD5C5D32E82ECEE00BEF107 /* Build configuration list for PBXNativeTarget "Habit Manager" */;
@@ -115,10 +187,12 @@
 				6AD5C5AB2E82ECEC00BEF107 /* Sources */,
 				6AD5C5AC2E82ECEC00BEF107 /* Frameworks */,
 				6AD5C5AD2E82ECEC00BEF107 /* Resources */,
+				6AD5C5EB2E82ECEE00BEF107 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6AD5C5ED2E82ECEE00BEF107 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				6AD5C5B12E82ECEC00BEF107 /* Habit Manager */,
@@ -216,11 +290,19 @@
 				6AD5C5AE2E82ECEC00BEF107 /* Habit Manager */,
 				6AD5C5BF2E82ECEE00BEF107 /* Habit ManagerTests */,
 				6AD5C5C92E82ECEE00BEF107 /* Habit ManagerUITests */,
+				6AD5C5E22E82ECEE00BEF107 /* HabitWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		6AD5C5E72E82ECEE00BEF107 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6AD5C5AD2E82ECEC00BEF107 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -245,6 +327,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		6AD5C5E62E82ECEE00BEF107 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		6AD5C5AB2E82ECEC00BEF107 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -269,6 +358,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		6AD5C5ED2E82ECEE00BEF107 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6AD5C5E22E82ECEE00BEF107 /* HabitWidgetExtension */;
+			targetProxy = 6AD5C5EC2E82ECEE00BEF107 /* PBXContainerItemProxy */;
+		};
 		6AD5C5C22E82ECEE00BEF107 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 6AD5C5AE2E82ECEC00BEF107 /* Habit Manager */;
@@ -282,6 +376,44 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		6AD5C5E82E82ECEE00BEF107 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "HabitWidgetExtension/HabitWidgetExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2N576VU5F;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "HabitWidgetExtension/Info.plist";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AR.Habit-Manager.HabitWidgetExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6AD5C5E92E82ECEE00BEF107 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "HabitWidgetExtension/HabitWidgetExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2N576VU5F;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = "HabitWidgetExtension/Info.plist";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "AR.Habit-Manager.HabitWidgetExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		6AD5C5D42E82ECEE00BEF107 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -532,6 +664,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		6AD5C5E52E82ECEE00BEF107 /* Build configuration list for PBXNativeTarget "HabitWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6AD5C5E82E82ECEE00BEF107 /* Debug */,
+				6AD5C5E92E82ECEE00BEF107 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		6AD5C5AA2E82ECEB00BEF107 /* Build configuration list for PBXProject "Habit Manager" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

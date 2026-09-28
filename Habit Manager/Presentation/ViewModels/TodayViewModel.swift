@@ -39,6 +39,7 @@ public final class TodayViewModel {
             errorMessage = error.localizedDescription
         }
         isLoading = false
+        syncWidgetSnapshot(for: date)
     }
     
     public func toggleCompletion(for habit: HabitEntity, on date: Date = .now) async {
@@ -53,6 +54,7 @@ public final class TodayViewModel {
             if !wasCompleted && isNowCompleted {
                 await handleHabitCompleted(updatedHabit, on: date)
             }
+            syncWidgetSnapshot(for: date)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -70,6 +72,7 @@ public final class TodayViewModel {
             if !wasCompleted && isNowCompleted {
                 await handleHabitCompleted(updatedHabit, on: date)
             }
+            syncWidgetSnapshot(for: date)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -78,6 +81,25 @@ public final class TodayViewModel {
     public func dismissAchievementToast() {
         showAchievementToast = false
         latestUnlockedAchievement = nil
+    }
+    
+    private func syncWidgetSnapshot(for date: Date = .now) {
+        let items = habits.map { habit in
+            HabitWidgetItem(
+                id: habit.id,
+                name: habit.name,
+                habitDescription: habit.habitDescription,
+                isCompleted: habit.isCompleted(on: date, calendar: calendar),
+                currentStreak: habit.currentStreak(at: date, calendar: calendar),
+                progress: habit.progress(on: date, calendar: calendar),
+                goal: habit.goal,
+                unit: habit.unit,
+                isQuantitative: habit.type == .quantitative
+            )
+        }
+        let highest = habits.map { $0.currentStreak(at: date, calendar: calendar) }.max() ?? 0
+        let snapshot = HabitWidgetSnapshot(habits: items, highestStreak: highest, lastUpdated: .now)
+        SharedHabitStore.shared.saveSnapshot(snapshot)
     }
     
     private func handleHabitCompleted(_ habit: HabitEntity, on date: Date) async {
