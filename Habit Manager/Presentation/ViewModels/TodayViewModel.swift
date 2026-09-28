@@ -8,6 +8,7 @@ public final class TodayViewModel {
     private let toggleHabitCompletionUseCase: ToggleHabitCompletionUseCaseProtocol
     private let awardHabitCompletionXPUseCase: AwardHabitCompletionXPUseCaseProtocol?
     private let evaluateAchievementsUseCase: EvaluateAchievementsUseCaseProtocol?
+    private let focusSessionService: FocusSessionServiceProtocol?
     private let calendar: Calendar
     
     public var habits: [HabitEntity] = []
@@ -15,18 +16,21 @@ public final class TodayViewModel {
     public var errorMessage: String? = nil
     public var latestUnlockedAchievement: AchievementEntity? = nil
     public var showAchievementToast: Bool = false
+    public var activeFocusHabitIds: Set<UUID> = []
     
     public init(
         getTodaysHabitsUseCase: GetTodaysHabitsUseCaseProtocol,
         toggleHabitCompletionUseCase: ToggleHabitCompletionUseCaseProtocol,
         awardHabitCompletionXPUseCase: AwardHabitCompletionXPUseCaseProtocol? = nil,
         evaluateAchievementsUseCase: EvaluateAchievementsUseCaseProtocol? = nil,
+        focusSessionService: FocusSessionServiceProtocol? = nil,
         calendar: Calendar = .current
     ) {
         self.getTodaysHabitsUseCase = getTodaysHabitsUseCase
         self.toggleHabitCompletionUseCase = toggleHabitCompletionUseCase
         self.awardHabitCompletionXPUseCase = awardHabitCompletionXPUseCase
         self.evaluateAchievementsUseCase = evaluateAchievementsUseCase
+        self.focusSessionService = focusSessionService
         self.calendar = calendar
     }
     
@@ -76,6 +80,52 @@ public final class TodayViewModel {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+    
+    public func startFocusSession(for habit: HabitEntity, durationMinutes: Int, on date: Date = .now) async {
+        guard let focusSessionService else { return }
+        let streak = habit.currentStreak(at: date, calendar: calendar)
+        do {
+            if let _ = try await focusSessionService.startFocusSession(
+                habitId: habit.id,
+                habitName: habit.name,
+                streak: streak,
+                durationMinutes: durationMinutes
+            ) {
+                activeFocusHabitIds.insert(habit.id)
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    public func endFocusSession(for habit: HabitEntity, markCompleted: Bool = false, on date: Date = .now) async {
+        guard let focusSessionService else { return }
+        if let activityId = await focusSessionService.activeSessionId(for: habit.id) {
+            await focusSessionService.endFocusSession(activityId: activityId)
+        }
+        activeFocusHabitIds.remove(habit.id)
+        
+        if markCompleted {
+            if habit.type == .quantitative {
+                await setProgress(for: habit, progress: habit.goal, on: date)
+            } else {
+                if !habit.isCompleted(on: date, calendar: calendar) {
+                    await toggleCompletion(for: habit, on: date)
+                }
+            }
+        }
+    }
+    
+    public func checkActiveFocusSessions() async {
+        guard let focusSessionService else { return }
+        var active = Set<UUID>()
+        for habit in habits {
+            if await focusSessionService.hasActiveSession(for: habit.id) {
+                active.insert(habit.id)
+            }
+        }
+        self.activeFocusHabitIds = active
     }
     
     public func dismissAchievementToast() {

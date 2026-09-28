@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TodayView: View {
     @State var viewModel: TodayViewModel
+    @State private var selectedHabitForFocus: HabitEntity? = nil
     
     var body: some View {
         NavigationStack {
@@ -16,22 +17,32 @@ struct TodayView: View {
                     )
                 } else {
                     List(viewModel.habits) { habit in
+                        let isFocusActive = viewModel.activeFocusHabitIds.contains(habit.id)
+                        
                         if habit.type == .quantitative {
                             QuantitativeHabitRow(
                                 habit: habit,
+                                isFocusActive: isFocusActive,
                                 onProgressChange: { newProgress in
                                     Task {
                                         await viewModel.setProgress(for: habit, progress: newProgress)
                                     }
+                                },
+                                onOpenFocus: {
+                                    selectedHabitForFocus = habit
                                 }
                             )
                         } else {
                             SimpleHabitRow(
                                 habit: habit,
+                                isFocusActive: isFocusActive,
                                 onToggle: {
                                     Task {
                                         await viewModel.toggleCompletion(for: habit)
                                     }
+                                },
+                                onOpenFocus: {
+                                    selectedHabitForFocus = habit
                                 }
                             )
                         }
@@ -40,6 +51,9 @@ struct TodayView: View {
                 }
             }
             .navigationTitle("Hoy")
+            .sheet(item: $selectedHabitForFocus) { habit in
+                FocusSessionSheet(habit: habit, viewModel: viewModel)
+            }
             .overlay(alignment: .top) {
                 if viewModel.showAchievementToast, let achievement = viewModel.latestUnlockedAchievement {
                     HStack(spacing: 12) {
@@ -87,14 +101,17 @@ struct TodayView: View {
             .animation(.spring(), value: viewModel.showAchievementToast)
             .task {
                 await viewModel.loadHabits()
+                await viewModel.checkActiveFocusSessions()
             }
             .onAppear {
                 Task {
                     await viewModel.loadHabits()
+                    await viewModel.checkActiveFocusSessions()
                 }
             }
             .refreshable {
                 await viewModel.loadHabits()
+                await viewModel.checkActiveFocusSessions()
             }
         }
     }
@@ -102,18 +119,38 @@ struct TodayView: View {
 
 struct SimpleHabitRow: View {
     let habit: HabitEntity
+    let isFocusActive: Bool
     let onToggle: () -> Void
+    let onOpenFocus: () -> Void
     
     private var isCompletedToday: Bool {
         habit.isCompleted(on: .now)
     }
     
     var body: some View {
-        HStack {
-            Text(habit.name)
-                .font(.headline)
-                .accessibilityIdentifier("today_habit_title_\(habit.name)")
+        HStack(spacing: 12) {
+            Button(action: onOpenFocus) {
+                Image(systemName: isFocusActive ? "timer.circle.fill" : "timer")
+                    .font(.title3)
+                    .foregroundStyle(isFocusActive ? .blue : .secondary.opacity(0.7))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("habit_focus_button_\(habit.name)")
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(habit.name)
+                    .font(.headline)
+                    .accessibilityIdentifier("today_habit_title_\(habit.name)")
+                
+                if isFocusActive {
+                    Text("Enfoque activo")
+                        .font(.caption2)
+                        .foregroundStyle(.blue)
+                }
+            }
+            
             Spacer()
+            
             Button(action: onToggle) {
                 Image(systemName: isCompletedToday ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
@@ -128,7 +165,9 @@ struct SimpleHabitRow: View {
 
 struct QuantitativeHabitRow: View {
     let habit: HabitEntity
+    let isFocusActive: Bool
     let onProgressChange: (Int) -> Void
+    let onOpenFocus: () -> Void
     
     private var isCompletedToday: Bool {
         habit.isCompleted(on: .now)
@@ -140,10 +179,26 @@ struct QuantitativeHabitRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(habit.name)
-                    .font(.headline)
-                    .accessibilityIdentifier("today_habit_title_\(habit.name)")
+            HStack(spacing: 12) {
+                Button(action: onOpenFocus) {
+                    Image(systemName: isFocusActive ? "timer.circle.fill" : "timer")
+                        .font(.title3)
+                        .foregroundStyle(isFocusActive ? .blue : .secondary.opacity(0.7))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("habit_focus_button_\(habit.name)")
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(habit.name)
+                        .font(.headline)
+                        .accessibilityIdentifier("today_habit_title_\(habit.name)")
+                    
+                    if isFocusActive {
+                        Text("Enfoque activo")
+                            .font(.caption2)
+                            .foregroundStyle(.blue)
+                    }
+                }
                 
                 Spacer()
                 
@@ -175,3 +230,4 @@ struct QuantitativeHabitRow: View {
         .padding(.vertical, 4)
     }
 }
+

@@ -86,4 +86,46 @@ struct TodayViewModelTests {
         #expect(viewModel.habits.first?.progress(on: today) == 8)
         #expect(viewModel.habits.first?.isCompleted(on: today) == true)
     }
+    
+    @Test("TodayViewModel starts and ends focus session with completion")
+    @MainActor
+    func startAndEndFocusSession() async {
+        let habit = HabitEntity(name: "Lectura", type: .simple)
+        let repository = MockHabitRepository(initialHabits: [habit])
+        let getTodaysUseCase = GetTodaysHabitsUseCase(repository: repository, calendar: calendar)
+        let toggleUseCase = ToggleHabitCompletionUseCase(repository: repository, calendar: calendar)
+        let mockFocusService = MockFocusSessionService()
+        
+        let viewModel = TodayViewModel(
+            getTodaysHabitsUseCase: getTodaysUseCase,
+            toggleHabitCompletionUseCase: toggleUseCase,
+            focusSessionService: mockFocusService,
+            calendar: calendar
+        )
+        
+        let today = Date()
+        await viewModel.loadHabits(for: today)
+        
+        // Start focus session
+        await viewModel.startFocusSession(for: habit, durationMinutes: 25, on: today)
+        #expect(viewModel.activeFocusHabitIds.contains(habit.id))
+        
+        let startedSessions = await mockFocusService.startedSessions
+        #expect(startedSessions.count == 1)
+        #expect(startedSessions.first?.habitName == "Lectura")
+        #expect(startedSessions.first?.duration == 25)
+        
+        // Check active sessions
+        await viewModel.checkActiveFocusSessions()
+        #expect(viewModel.activeFocusHabitIds.contains(habit.id))
+        
+        // End focus session and complete habit
+        await viewModel.endFocusSession(for: habit, markCompleted: true, on: today)
+        #expect(viewModel.activeFocusHabitIds.contains(habit.id) == false)
+        #expect(viewModel.habits.first?.isCompleted(on: today) == true)
+        
+        let endedSessions = await mockFocusService.endedSessions
+        #expect(endedSessions.count == 1)
+    }
 }
+

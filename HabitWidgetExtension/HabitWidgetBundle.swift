@@ -5,5 +5,6 @@ import SwiftUI
 struct HabitWidgetBundle: WidgetBundle {
     var body: some Widget {
         HabitWidget()
+        HabitActivityWidget()
     }
 }

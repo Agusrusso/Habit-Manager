@@ -121,10 +121,13 @@ El esquema de datos de la aplicación ha sido adaptado y preparado para sincroni
 
 ---
 
-## 📱 Widgets Interactivos (WidgetKit + AppIntents)
+---
 
-La aplicación incluye soporte completo para **Widgets Interactivos en iOS 17+**, permitiendo visualizar el progreso del día y marcar hábitos directamente desde la pantalla de inicio o la pantalla de bloqueo sin necesidad de abrir la app:
+## 📱 Widgets Interactivos y Live Activities (WidgetKit + AppIntents + ActivityKit)
 
+La aplicación incluye soporte completo para **Widgets Interactivos en iOS 17+** y **Live Activities con Dynamic Island**:
+
+### 1. Widgets Interactivos (WidgetKit + AppIntents)
 * **Sincronización mediante App Groups:**
   * Almacenamiento compartido y thread-safe con `group.com.agusrusso.HabitManager` a través de `SharedHabitStore`.
   * La app principal sincroniza automáticamente los hábitos del día y rachas en cada apertura o cambio en `TodayViewModel`.
@@ -134,24 +137,33 @@ La aplicación incluye soporte completo para **Widgets Interactivos en iOS 17+**
   * **`.systemSmall`:** Anillo circular animado con porcentaje de cumplimiento del día, racha más alta 🔥 y contador de pendientes.
   * **`.systemMedium`:** Lista interactiva de los hábitos de hoy con botones directos para completarlos, tachado de texto y progreso para cuantitativos.
   * **Lock Screen (`.accessoryCircular`, `.accessoryRectangular`, `.accessoryInline`):** Información visible en pantalla de bloqueo y StandBy.
-* **Target `HabitWidgetExtension`:**
-  * Compilado como un App Extension nativo (`.appex`) e incrustado en el bundle de la aplicación.
+
+### 2. Live Activities y Dynamic Island (ActivityKit)
+* **Sesiones de Enfoque en Tiempo Real:**
+  * Desde la vista "Hoy", cada hábito cuenta con un botón de temporizador que despliega un modal (`FocusSessionSheet`) para iniciar sesiones de enfoque (5, 10, 15, 25 Pomodoro 🍅, 45 o 60 minutos).
+* **Dynamic Island Integrado (`HabitActivityWidget`):**
+  * **Compact Leading/Trailing:** Nombre del hábito, fuego 🔥 y cuenta regresiva en vivo (`timerInterval:countsDown:`).
+  * **Minimal:** Ícono de racha animado.
+  * **Expanded:** Vista expandida completa con racha, tiempo restante en dígitos monoespaciados, objetivo de minutos e indicador de concentración activa.
+* **Lock Screen / Banner en Vivo:**
+  * Tarjeta visual con tipografía grande, tiempo restante en vivo, racha y mensajes de aliento.
+  * Opción de finalizar sesión y marcar el hábito automáticamente como completado otorgando experiencia (XP).
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-- **Lenguaje:** Swift 6 / iOS 17+ (Swift Concurrency: `async`/`await`, `Sendable`, `@MainActor`).
+- **Lenguaje:** Swift 6 / iOS 17+ (Swift Concurrency: `async`/`await`, `Sendable`, `@MainActor`, `actor`).
 - **Framework de Interfaz:** SwiftUI con macros `@Observable`.
 - **Persistencia:** SwiftData (aislado en capa de datos) + compatibilidad CloudKit.
-- **Widgets:** WidgetKit + AppIntents (interactividad directa).
+- **Widgets y Live Activities:** WidgetKit + AppIntents (interactividad) + ActivityKit (Dynamic Island y Lock Screen).
 - **Gráficos:** Swift Charts.
 - **Notificaciones:** UserNotifications (`UNUserNotificationCenter`).
 - **Framework de Pruebas:** Swift Testing (`@Suite`, `@Test`, `#expect`) + XCTest.
 
 ---
 
-## 🧪 Pruebas Unitarias, Integración y UI (45/45 Pasando)
+## 🧪 Pruebas Unitarias, Integración y UI (47/47 Pasando)
 
 El proyecto cuenta con cobertura exhaustiva de pruebas automáticas en todas las capas, validadas con el modo estricto de concurrencia de Swift 6 (`-strict-concurrency=complete`):
 
@@ -161,7 +173,8 @@ El proyecto cuenta con cobertura exhaustiva de pruebas automáticas en todas las
 | **UseCasesTests** | 8 | Lógica de negocio y casos de uso con mocks de repositorios y notificaciones. |
 | **GamificationDomainTests** | 5 | Progresión de niveles de usuario, evaluación de hitos, rachas, día perfecto y XP. |
 | **SwiftDataHabitRepositoryTests** | 5 | Integración con contenedor SwiftData en memoria (`isStoredInMemoryOnly: true`). |
-| **TodayViewModelTests** | 4 | Filtrado del día, toggles de estado, progreso numérico y sincronización de widgets. |
+| **TodayViewModelTests** | 5 | Filtrado del día, toggles de estado, progreso numérico, sincronización de widgets y sesiones de Live Activities. |
+| **HabitActivityAttributesTests** | 1 | Codificación, serialización JSON y preservación de estado en Live Activities (`ContentState`). |
 | **SharedHabitStoreTests** | 3 | Codificación, serialización atómica en App Group y alternancia interactiva de hábitos en widgets. |
 | **HabitListViewModelTests** | 2 | Carga de lista y eliminación de hábitos. |
 | **AddEditHabitViewModelTests** | 4 | Reglas de validación, creación, edición y eliminación de hábitos. |
@@ -180,17 +193,18 @@ Habit Manager/
 ├── Domain/                          # Lógica de Negocio Pura (0 DB, 0 UI)
 │   ├── Model/                       # HabitEntity, AchievementEntity, UserGamificationProfile, Enums
 │   ├── Repository/                  # HabitRepositoryProtocol, GamificationRepositoryProtocol
-│   ├── Service/                     # NotificationServiceProtocol
+│   ├── Service/                     # NotificationServiceProtocol, FocusSessionServiceProtocol
 │   └── UseCases/                    # Casos de uso de Hábitos y Gamificación
 ├── Data/                            # Persistencia y Servicios Concretos
 │   ├── Mapping/                     # HabitMapper (SwiftData <-> Dominio)
 │   ├── Repository/                  # SwiftDataHabitRepository, UserDefaultsGamificationRepository (actor)
-│   └── Service/                     # AppNotificationService
+│   └── Service/                     # AppNotificationService, ActivityKitFocusSessionService (actor)
 ├── Presentation/                    # MVVM y DI
-│   ├── DI/                          # AppDependencyContainer
+│   ├── DI/                          # AppDependencyContainer (inyección de servicios y casos de uso)
 │   └── ViewModels/                  # ViewModels (@Observable)
 ├── View/                            # Vistas SwiftUI
-│   ├── TodayView.swift              # Pantalla principal "Hoy" con banner de celebración
+│   ├── TodayView.swift              # Pantalla principal "Hoy" con banner de celebración y botón de enfoque
+│   ├── FocusSessionSheet.swift      # Modal de configuración y control de Live Activities
 │   ├── HabitListView.swift          # Pantalla de gestión "Mis Hábitos"
 │   ├── AchievementsView.swift       # Pantalla de Nivel, Insignias y Detalle
 │   ├── StatsView.swift              # Métricas y Swift Charts
@@ -198,10 +212,12 @@ Habit Manager/
 ├── Model/                           # Esquemas SwiftData CloudKit-ready (@Model)
 │   ├── Habit.swift
 │   └── HabitLog.swift
-├── HabitWidgetExtension/            # Target de Extensión para Widgets de iOS
-│   ├── HabitWidgetBundle.swift      # Entry point @main del widget
-│   ├── HabitWidget.swift            # TimelineProvider y configuración del Widget
+├── HabitWidgetExtension/            # Target de Extensión para Widgets y Live Activities de iOS
+│   ├── HabitWidgetBundle.swift      # Entry point @main del widget bundle
+│   ├── HabitWidget.swift            # TimelineProvider y configuración del Widget interactivo
 │   ├── HabitWidgetViews.swift       # Vistas SwiftUI (small, medium, accessory)
+│   ├── HabitActivityWidget.swift    # Configuración de Live Activity (Dynamic Island & Lock Screen)
+│   ├── HabitActivityAttributes.swift# Atributos estáticos y estado dinámico de ActivityKit
 │   ├── ToggleHabitIntent.swift      # AppIntent para interacción directa
 │   ├── SharedHabitStore.swift       # Acceso thread-safe vía App Groups
 │   └── HabitWidgetSnapshot.swift    # Snapshot serializable de hábitos del día
@@ -215,13 +231,13 @@ Habit Manager/
 
 - [x] **MVP Inicial** (guardado en la rama `mvp`).
 - [x] **Refactorización a Clean Architecture con MVVM**.
-- [x] **Suite de pruebas unitarias e integración (42 tests)**.
+- [x] **Suite de pruebas unitarias e integración (44 tests)**.
 - [x] **Gamificación Completa:** Niveles (1 al 7), sistema de XP, 14 insignias con detalle y alertas reactivas.
 - [x] **Preparación CloudKit:** Modelos compatibles, relaciones inversas y contenedor vinculado.
 - [x] **Pruebas de UI (XCUITest):** Automatización de flujos críticos end-to-end.
 - [x] **Cero Warnings con Swift 6 Strict Concurrency** (`-strict-concurrency=complete`).
 - [x] **Widgets Interactivos (Opción A):** Widgets en pantalla de inicio y bloqueo con AppIntents para completar hábitos sin abrir la app.
-- [ ] **Live Activities y Dynamic Island (Opción B):** Temporizador de sesión de enfoque o progreso en vivo en Dynamic Island y Lock Screen.
+- [x] **Live Activities y Dynamic Island (Opción B):** Temporizador de sesión de enfoque con Dynamic Island (compact, minimal, expanded) y tarjeta en Lock Screen.
 
 ---
 
@@ -229,4 +245,5 @@ Habit Manager/
 
 **Agustín Russo**
 - GitHub: [@Agusrusso](https://github.com/Agusrusso)
+
 

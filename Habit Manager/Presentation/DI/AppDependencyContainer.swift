@@ -8,6 +8,7 @@ public final class AppDependencyContainer {
     public let repository: HabitRepositoryProtocol
     public let notificationService: NotificationServiceProtocol
     public let gamificationRepository: GamificationRepositoryProtocol
+    public let focusSessionService: FocusSessionServiceProtocol
     
     public let getHabitsUseCase: GetHabitsUseCaseProtocol
     public let getTodaysHabitsUseCase: GetTodaysHabitsUseCaseProtocol
@@ -23,11 +24,13 @@ public final class AppDependencyContainer {
     public init(
         repository: HabitRepositoryProtocol,
         notificationService: NotificationServiceProtocol,
-        gamificationRepository: GamificationRepositoryProtocol = UserDefaultsGamificationRepository()
+        gamificationRepository: GamificationRepositoryProtocol = UserDefaultsGamificationRepository(),
+        focusSessionService: FocusSessionServiceProtocol = ActivityKitFocusSessionService()
     ) {
         self.repository = repository
         self.notificationService = notificationService
         self.gamificationRepository = gamificationRepository
+        self.focusSessionService = focusSessionService
         
         self.getHabitsUseCase = GetHabitsUseCase(repository: repository)
         self.getTodaysHabitsUseCase = GetTodaysHabitsUseCase(repository: repository)
@@ -51,10 +54,12 @@ public final class AppDependencyContainer {
         let repository = SwiftDataHabitRepository(modelContainer: modelContainer)
         let notificationService = AppNotificationService.shared
         let gamificationRepository = UserDefaultsGamificationRepository()
+        let focusSessionService = ActivityKitFocusSessionService()
         self.init(
             repository: repository,
             notificationService: notificationService,
-            gamificationRepository: gamificationRepository
+            gamificationRepository: gamificationRepository,
+            focusSessionService: focusSessionService
         )
     }
     
@@ -63,7 +68,8 @@ public final class AppDependencyContainer {
             getTodaysHabitsUseCase: getTodaysHabitsUseCase,
             toggleHabitCompletionUseCase: toggleHabitCompletionUseCase,
             awardHabitCompletionXPUseCase: awardHabitCompletionXPUseCase,
-            evaluateAchievementsUseCase: evaluateAchievementsUseCase
+            evaluateAchievementsUseCase: evaluateAchievementsUseCase,
+            focusSessionService: focusSessionService
         )
     }
     
