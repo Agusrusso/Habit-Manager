@@ -66,7 +66,6 @@ struct SharedHabitStoreTests {
         
         store.saveSnapshot(HabitWidgetSnapshot(habits: [habit], highestStreak: 3))
         
-        // 1. Toggle to completed
         let updated = store.toggleHabit(id: habitId)
         let toggledHabit = updated.habits.first { $0.id == habitId }
         #expect(toggledHabit?.isCompleted == true)
@@ -75,7 +74,6 @@ struct SharedHabitStoreTests {
         #expect(updated.completedCount == 1)
         #expect(updated.completionPercentage == 100.0)
         
-        // 2. Toggle back to incomplete
         let toggledBack = store.toggleHabit(id: habitId)
         let backHabit = toggledBack.habits.first { $0.id == habitId }
         #expect(backHabit?.isCompleted == false)

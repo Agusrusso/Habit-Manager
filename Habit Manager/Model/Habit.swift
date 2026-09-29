@@ -2,10 +2,6 @@ import Foundation
 import SwiftUI
 import SwiftData
 
-// ===================================
-// MARK: - Modelo Principal (CloudKit Compatible)
-// ===================================
-
 @Model
 final class Habit {
     var id: UUID = UUID()
@@ -16,8 +12,8 @@ final class Habit {
     var reminderEnabled: Bool = false
     var reminderTime: Date = Date()
     var type: HabitType = HabitType.simple
-    var goal: Int = 1 // Meta para hábitos cuantitativos
-    var unit: String = "" // ej: "vasos", "minutos", "pasos"
+    var goal: Int = 1
+    var unit: String = ""
     
     @Relationship(deleteRule: .cascade, inverse: \HabitLog.habit)
     var logs: [HabitLog]? = []

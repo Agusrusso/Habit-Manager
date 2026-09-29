@@ -5,25 +5,21 @@ import Foundation
 struct GamificationDomainTests {
     
     @Test func userProfileLevelsAndProgress() {
-        // Level 1: Novato (0..100)
         let profile1 = UserGamificationProfile(totalXP: 50, unlockedAchievementsCount: 2, totalAchievementsCount: 14)
         #expect(profile1.level == 1)
         #expect(profile1.levelTitle == "Novato")
         #expect(profile1.progressInLevel == 0.5)
         
-        // Level 2: Aprendiz (100..300)
         let profile2 = UserGamificationProfile(totalXP: 200, unlockedAchievementsCount: 5, totalAchievementsCount: 14)
         #expect(profile2.level == 2)
         #expect(profile2.levelTitle == "Aprendiz")
-        #expect(profile2.progressInLevel == 0.5) // 100 earned out of 200 range
+        #expect(profile2.progressInLevel == 0.5)
         
-        // Level 3: Constante (300..650)
         let profile3 = UserGamificationProfile(totalXP: 300, unlockedAchievementsCount: 6, totalAchievementsCount: 14)
         #expect(profile3.level == 3)
         #expect(profile3.levelTitle == "Constante")
         #expect(profile3.progressInLevel == 0.0)
         
-        // Level 7: Leyenda (3200+)
         let profile7 = UserGamificationProfile(totalXP: 5000, unlockedAchievementsCount: 14, totalAchievementsCount: 14)
         #expect(profile7.level == 7)
         #expect(profile7.levelTitle == "Leyenda")
@@ -36,12 +32,10 @@ struct GamificationDomainTests {
         let calendar = Calendar.current
         let today = Date()
         
-        // No habits
         let resultEmpty = try await useCase.execute(habits: [], referenceDate: today)
         #expect(resultEmpty.newlyUnlocked.isEmpty)
         #expect(resultEmpty.awardedXP == 0)
         
-        // Create 1 habit with 0 logs
         let habit1 = HabitEntity(
             id: UUID(),
             name: "Hacer ejercicio",
@@ -54,7 +48,6 @@ struct GamificationDomainTests {
         #expect(!result1.newlyUnlocked.contains(where: { $0.type == .firstHabitCompleted }))
         #expect(result1.awardedXP == AchievementType.firstHabitCreated.xpReward)
         
-        // Mark completed log
         let log = HabitLogEntity(id: UUID(), date: today, progress: 1)
         let habitWithLog = HabitEntity(
             id: habit1.id,
@@ -66,7 +59,6 @@ struct GamificationDomainTests {
         
         let result2 = try await useCase.execute(habits: [habitWithLog], referenceDate: today)
         #expect(result2.newlyUnlocked.contains(where: { $0.type == .firstHabitCompleted }))
-        // firstHabitCreated should not be re-unlocked or re-rewarded
         #expect(!result2.newlyUnlocked.contains(where: { $0.type == .firstHabitCreated }))
         #expect(result2.awardedXP == AchievementType.firstHabitCompleted.xpReward)
         
@@ -80,7 +72,6 @@ struct GamificationDomainTests {
         let calendar = Calendar.current
         let today = Date()
         
-        // Build 7 consecutive days of completed logs
         var logs: [HabitLogEntity] = []
         for daysAgo in 0..<7 {
             let logDate = calendar.date(byAdding: .day, value: -daysAgo, to: today)!
@@ -111,7 +102,6 @@ struct GamificationDomainTests {
         let useCase = EvaluateAchievementsUseCase(repository: repo)
         let today = Date()
         
-        // 3 habits scheduled today and all completed
         let h1 = HabitEntity(id: UUID(), name: "H1", frequency: .daily, type: .simple, logs: [HabitLogEntity(id: UUID(), date: today, progress: 1)])
         let h2 = HabitEntity(id: UUID(), name: "H2", frequency: .daily, type: .simple, logs: [HabitLogEntity(id: UUID(), date: today, progress: 1)])
         let h3 = HabitEntity(id: UUID(), name: "H3", frequency: .daily, type: .simple, logs: [HabitLogEntity(id: UUID(), date: today, progress: 1)])
@@ -128,7 +118,7 @@ struct GamificationDomainTests {
         #expect(xpSimple == 10)
         
         let xpQuant = try await useCase.execute(isCompleted: true, isQuantitative: true)
-        #expect(xpQuant == 25) // 10 + 15
+        #expect(xpQuant == 25)
         
         let xpNone = try await useCase.execute(isCompleted: false, isQuantitative: false)
         #expect(xpNone == 0)

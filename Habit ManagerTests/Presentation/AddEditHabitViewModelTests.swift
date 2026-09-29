@@ -12,22 +12,18 @@ struct AddEditHabitViewModelTests {
         let notificationService = MockNotificationService()
         let saveUseCase = SaveHabitUseCase(repository: repository, notificationService: notificationService)
         
-        // 1. Empty name should be disabled
         let vmEmpty = AddEditHabitViewModel(saveHabitUseCase: saveUseCase)
         vmEmpty.name = ""
         #expect(vmEmpty.isSaveDisabled == true)
         
-        // 2. Weekly with no days should be disabled
         vmEmpty.name = "Ejercicio"
         vmEmpty.frequencyCase = .weekly
         vmEmpty.selectedDays = []
         #expect(vmEmpty.isSaveDisabled == true)
         
-        // 3. Weekly with days should be enabled
         vmEmpty.selectedDays = [.monday]
         #expect(vmEmpty.isSaveDisabled == false)
         
-        // 4. Daily with name should be enabled
         vmEmpty.frequencyCase = .daily
         #expect(vmEmpty.isSaveDisabled == false)
     }

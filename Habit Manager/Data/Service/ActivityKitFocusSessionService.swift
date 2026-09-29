@@ -16,7 +16,6 @@ public actor ActivityKitFocusSessionService: FocusSessionServiceProtocol {
             return nil
         }
         
-        // End any preexisting session for this habit
         if let existingId = activeSessions[habitId] {
             await endFocusSession(activityId: existingId)
         }
@@ -67,7 +66,6 @@ public actor ActivityKitFocusSessionService: FocusSessionServiceProtocol {
     }
     
     public func endFocusSession(activityId: String) async {
-        // Find and clean up tracking
         if let habitId = activeSessions.first(where: { $0.value == activityId })?.key {
             activeSessions.removeValue(forKey: habitId)
         }

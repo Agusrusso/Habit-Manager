@@ -49,25 +49,21 @@ struct Habit_ManagerApp: App {
     var body: some Scene {
         WindowGroup {
             TabView {
-                // Pestaña 1: "Hoy" (main)
                 TodayView(viewModel: container.makeTodayViewModel())
                     .tabItem {
                         Label("Hoy", systemImage: "sun.max.fill")
                     }
                 
-                // Pestaña 2: Lista completa de hábitos
                 HabitListView(viewModel: container.makeHabitListViewModel())
                     .tabItem {
                         Label("Todos", systemImage: "list.bullet")
                     }
                 
-                // Pestaña 3: Logros y Gamificación
                 AchievementsView(viewModel: container.makeGamificationViewModel())
                     .tabItem {
                         Label("Logros", systemImage: "trophy.fill")
                     }
                 
-                // Pestaña 4: Estadísticas
                 StatsView(viewModel: container.makeStatsViewModel())
                     .tabItem {
                         Label("Estadísticas", systemImage: "chart.bar.fill")

@@ -12,12 +12,10 @@ struct StatsViewModelTests {
         let today = Date()
         let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
         
-        // Habit with streak
         let habit1 = HabitEntity(
             name: "Hábito con racha",
             logs: [HabitLogEntity(date: today, progress: 1)]
         )
-        // Habit without streak
         let habit2 = HabitEntity(name: "Hábito sin racha")
         
         let repository = MockHabitRepository(initialHabits: [habit1, habit2])

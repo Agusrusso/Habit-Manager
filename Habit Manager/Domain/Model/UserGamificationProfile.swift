@@ -28,7 +28,6 @@ public struct UserGamificationProfile: Sendable, Equatable {
     }
     
     private static func calculateLevel(from xp: Int) -> (level: Int, title: String, currentBaseXP: Int, nextThresholdXP: Int, progress: Double) {
-        // Thresholds defines the minimum XP needed to enter that level
         let tiers: [(level: Int, title: String, threshold: Int)] = [
             (1, "Novato", 0),
             (2, "Aprendiz", 100),
@@ -50,7 +49,6 @@ public struct UserGamificationProfile: Sendable, Equatable {
                     let progress = min(max(Double(earnedInRange) / Double(range), 0.0), 1.0)
                     return (tier.level, tier.title, currentBase, nextThreshold, progress)
                 } else {
-                    // Maximum tier
                     return (tier.level, tier.title, currentBase, currentBase + 2000, 1.0)
                 }
             }

@@ -41,13 +41,9 @@ public struct EvaluateAchievementsUseCase: EvaluateAchievementsUseCaseProtocol {
     ) async throws -> AchievementEvaluationResult {
         let unlockedDict = try await repository.getUnlockedAchievements()
         
-        // Metrics computation
         let totalHabitsCount = habits.count
-        
-        // Max streak across all habits
         let maxStreak = habits.map { $0.currentStreak(at: referenceDate, calendar: calendar) }.max() ?? 0
         
-        // Total completed logs across all habits
         var totalCompletedLogs = 0
         var quantitativeCompletions = 0
         
@@ -62,7 +58,6 @@ public struct EvaluateAchievementsUseCase: EvaluateAchievementsUseCaseProtocol {
             }
         }
         
-        // Check for Perfect Day (reference date)
         let scheduledToday = habits.filter { $0.isScheduled(on: referenceDate, calendar: calendar) }
         let isPerfectDayToday = scheduledToday.count >= 3 && scheduledToday.allSatisfy { $0.isCompleted(on: referenceDate, calendar: calendar) }
         

@@ -12,11 +12,10 @@ struct TodayViewModelTests {
         let habit1 = HabitEntity(name: "Diario", frequency: .daily)
         let habit2 = HabitEntity(name: "Semanal", frequency: .weekly([.sunday]))
         
-        // Pick a Monday
         var comps = DateComponents()
         comps.year = 2026
         comps.month = 9
-        comps.day = 28 // Monday
+        comps.day = 28
         let monday = calendar.date(from: comps)!
         
         let repository = MockHabitRepository(initialHabits: [habit1, habit2])
@@ -106,7 +105,6 @@ struct TodayViewModelTests {
         let today = Date()
         await viewModel.loadHabits(for: today)
         
-        // Start focus session
         await viewModel.startFocusSession(for: habit, durationMinutes: 25, on: today)
         #expect(viewModel.activeFocusHabitIds.contains(habit.id))
         
@@ -115,11 +113,9 @@ struct TodayViewModelTests {
         #expect(startedSessions.first?.habitName == "Lectura")
         #expect(startedSessions.first?.duration == 25)
         
-        // Check active sessions
         await viewModel.checkActiveFocusSessions()
         #expect(viewModel.activeFocusHabitIds.contains(habit.id))
         
-        // End focus session and complete habit
         await viewModel.endFocusSession(for: habit, markCompleted: true, on: today)
         #expect(viewModel.activeFocusHabitIds.contains(habit.id) == false)
         #expect(viewModel.habits.first?.isCompleted(on: today) == true)

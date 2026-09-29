@@ -119,10 +119,6 @@ El esquema de datos de la aplicación ha sido adaptado y preparado para sincroni
 
 ---
 
----
-
----
-
 ## 📱 Widgets Interactivos y Live Activities (WidgetKit + AppIntents + ActivityKit)
 
 La aplicación incluye soporte completo para **Widgets Interactivos en iOS 17+** y **Live Activities con Dynamic Island**:
@@ -236,8 +232,8 @@ Habit Manager/
 - [x] **Preparación CloudKit:** Modelos compatibles, relaciones inversas y contenedor vinculado.
 - [x] **Pruebas de UI (XCUITest):** Automatización de flujos críticos end-to-end.
 - [x] **Cero Warnings con Swift 6 Strict Concurrency** (`-strict-concurrency=complete`).
-- [x] **Widgets Interactivos (Opción A):** Widgets en pantalla de inicio y bloqueo con AppIntents para completar hábitos sin abrir la app.
-- [x] **Live Activities y Dynamic Island (Opción B):** Temporizador de sesión de enfoque con Dynamic Island (compact, minimal, expanded) y tarjeta en Lock Screen.
+- [x] **Widgets Interactivos:** Widgets en pantalla de inicio y bloqueo con AppIntents para completar hábitos sin abrir la app.
+- [x] **Live Activities y Dynamic Island:** Temporizador de sesión de enfoque con Dynamic Island (compact, minimal, expanded) y tarjeta en Lock Screen.
 
 ---
 

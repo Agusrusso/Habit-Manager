@@ -6,7 +6,6 @@ import Testing
 struct HabitEntityTests {
     private let calendar = Calendar.current
     
-    // Helper to create fixed dates at start of day
     private func date(daysAgo: Int, from base: Date = Date()) -> Date {
         calendar.startOfDay(for: calendar.date(byAdding: .day, value: -daysAgo, to: base)!)
     }
@@ -23,14 +22,12 @@ struct HabitEntityTests {
     
     @Test("Scheduling logic for weekly habits")
     func weeklyHabitIsScheduledOnlyOnSelectedDays() {
-        // Monday and Wednesday
         let habit = HabitEntity(name: "Gimnasio", frequency: .weekly([.monday, .wednesday]))
         
-        // Find a known Monday and Tuesday
         var dateComponents = DateComponents()
         dateComponents.year = 2026
         dateComponents.month = 9
-        dateComponents.day = 28 // 2026-09-28 is a Monday (weekday 2)
+        dateComponents.day = 28
         let monday = calendar.date(from: dateComponents)!
         let tuesday = calendar.date(byAdding: .day, value: 1, to: monday)!
         let wednesday = calendar.date(byAdding: .day, value: 2, to: monday)!
@@ -87,7 +84,7 @@ struct HabitEntityTests {
                 HabitLogEntity(date: date(daysAgo: 0, from: baseDate), progress: 1),
                 HabitLogEntity(date: date(daysAgo: 1, from: baseDate), progress: 1),
                 HabitLogEntity(date: date(daysAgo: 2, from: baseDate), progress: 1),
-                HabitLogEntity(date: date(daysAgo: 4, from: baseDate), progress: 1) // missed day 3
+                HabitLogEntity(date: date(daysAgo: 4, from: baseDate), progress: 1)
             ]
         )
         
@@ -126,7 +123,6 @@ struct HabitEntityTests {
     @Test("Completion percentage calculation for 7 days")
     func completionPercentageCalculatesAccurately() {
         let baseDate = Date()
-        // Daily habit with 7 days range, 3 completed days
         let habit = HabitEntity(
             name: "Escribir",
             frequency: .daily,

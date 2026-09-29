@@ -47,7 +47,6 @@ struct SwiftDataHabitRepositoryTests {
         var habit = HabitEntity(name: "Leer", frequency: .daily, type: .quantitative, goal: 10, unit: "páginas")
         try await repository.saveHabit(habit)
         
-        // Update habit
         habit.name = "Leer mucho"
         habit.goal = 20
         try await repository.saveHabit(habit)
@@ -79,17 +78,14 @@ struct SwiftDataHabitRepositoryTests {
         
         let today = Date()
         
-        // 1. Initial progress
         let habitWithProgress = try await repository.updateProgress(habitId: habit.id, date: today, progress: 4)
         #expect(habitWithProgress.progress(on: today) == 4)
         #expect(habitWithProgress.isCompleted(on: today) == false)
         
-        // 2. Incremented progress reaching goal
         let completedHabit = try await repository.updateProgress(habitId: habit.id, date: today, progress: 8)
         #expect(completedHabit.progress(on: today) == 8)
         #expect(completedHabit.isCompleted(on: today) == true)
         
-        // 3. Setting progress to 0 removes the log
         let resetHabit = try await repository.updateProgress(habitId: habit.id, date: today, progress: 0)
         #expect(resetHabit.progress(on: today) == 0)
         #expect(resetHabit.logs.isEmpty)

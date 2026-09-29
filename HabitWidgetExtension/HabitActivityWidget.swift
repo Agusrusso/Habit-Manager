@@ -5,13 +5,11 @@ import WidgetKit
 struct HabitActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: HabitActivityAttributes.self) { context in
-            // Lock Screen / Banner UI
             HabitActivityLockScreenView(context: context)
                 .activityBackgroundTint(Color.black.opacity(0.85))
                 .activitySystemActionForegroundColor(Color.white)
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 6) {
                         Image(systemName: "flame.fill")

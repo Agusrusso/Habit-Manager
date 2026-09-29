@@ -17,7 +17,6 @@ struct FocusSessionSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 24) {
-                // Header card
                 VStack(spacing: 8) {
                     ZStack {
                         Circle()
@@ -46,7 +45,6 @@ struct FocusSessionSheet: View {
                 Divider()
                 
                 if isCurrentlyActive {
-                    // Active session UI
                     VStack(spacing: 16) {
                         HStack {
                             Image(systemName: "sparkles")
@@ -97,7 +95,6 @@ struct FocusSessionSheet: View {
                             .fill(Color(uiColor: .secondarySystemGroupedBackground))
                     )
                 } else {
-                    // New session picker
                     VStack(alignment: .leading, spacing: 14) {
                         Text("DURACIÓN DEL ENFOQUE")
                             .font(.caption)

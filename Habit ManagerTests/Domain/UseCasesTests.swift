@@ -22,7 +22,7 @@ struct UseCasesTests {
         var components = DateComponents()
         components.year = 2026
         components.month = 9
-        components.day = 28 // Monday (weekday 2)
+        components.day = 28
         let monday = calendar.date(from: components)!
         
         let dailyHabit = HabitEntity(name: "Diario", frequency: .daily)
@@ -46,12 +46,10 @@ struct UseCasesTests {
         let useCase = ToggleHabitCompletionUseCase(repository: repository, calendar: calendar)
         let today = Date()
         
-        // 1. Toggle from 0 to 1
         let completedHabit = try await useCase.execute(habitId: habit.id, on: today)
         #expect(completedHabit.isCompleted(on: today, calendar: calendar) == true)
         #expect(completedHabit.progress(on: today, calendar: calendar) == 1)
         
-        // 2. Toggle back from 1 to 0
         let uncompletedHabit = try await useCase.execute(habitId: habit.id, on: today)
         #expect(uncompletedHabit.isCompleted(on: today, calendar: calendar) == false)
         #expect(uncompletedHabit.progress(on: today, calendar: calendar) == 0)
@@ -64,12 +62,10 @@ struct UseCasesTests {
         let useCase = ToggleHabitCompletionUseCase(repository: repository, calendar: calendar)
         let today = Date()
         
-        // Progress 5 of 8 -> not completed
         let updated5 = try await useCase.setProgress(habitId: habit.id, on: today, progress: 5)
         #expect(updated5.progress(on: today, calendar: calendar) == 5)
         #expect(updated5.isCompleted(on: today, calendar: calendar) == false)
         
-        // Progress 8 of 8 -> completed
         let updated8 = try await useCase.setProgress(habitId: habit.id, on: today, progress: 8)
         #expect(updated8.progress(on: today, calendar: calendar) == 8)
         #expect(updated8.isCompleted(on: today, calendar: calendar) == true)

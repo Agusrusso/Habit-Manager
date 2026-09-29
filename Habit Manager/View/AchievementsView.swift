@@ -96,7 +96,6 @@ struct AchievementsView: View {
                 }
             }
             
-            // XP Progress Bar
             VStack(alignment: .leading, spacing: 6) {
                 HStack {
                     Text("Progreso de Nivel")
@@ -219,7 +218,6 @@ struct BadgeCard: View {
                         .foregroundStyle(achievement.isUnlocked ? .green : .secondary)
                 }
                 
-                // Progress or Reward pill
                 HStack(spacing: 4) {
                     Image(systemName: "sparkles")
                         .font(.caption2)
